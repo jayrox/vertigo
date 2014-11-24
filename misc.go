@@ -62,6 +62,12 @@ func sessionchecker() martini.Handler {
 	}
 }
 
+func getsession() martini.Handler {
+	return func(session sessions.Session) {
+		return
+	}
+}
+
 // Middleware function hooks the database to be accessible for Martini routes.
 func middleware() martini.Handler {
 	db, err := gorm.Open(os.Getenv("driver"), os.Getenv("dbsource"))
@@ -107,4 +113,16 @@ func ProtectedPage(req *http.Request, session sessions.Session, render render.Re
 // would return "api". This function is used to route both JSON API and frontend requests in the same function.
 func root(req *http.Request) string {
 	return strings.Split(strings.TrimPrefix(req.URL.String(), "/"), "/")[0]
+}
+
+// Gives a good clean standard urlHost
+func urlHost() (url string) {
+	url = Settings.Hostname
+	if !strings.HasPrefix(url, "http://") && !strings.HasPrefix(url, "https://") {
+		url = "http://" + url
+	}
+	if !strings.HasSuffix(url, "/") {
+		url += "/"
+	}
+	return
 }

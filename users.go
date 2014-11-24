@@ -28,6 +28,7 @@ type User struct {
 	ID       int64  `json:"id" gorm:"primary_key:yes"`
 	Name     string `json:"name" form:"name"`
 	Password string `json:"password,omitempty" form:"password" sql:"-"`
+	Avatar   string `json:"avatar" form:"avatar"`
 	Recovery string `json:"-"`
 	Digest   []byte `json:"-"`
 	Email    string `json:"email,omitempty" form:"email" binding:"required" sql:"unique"`
@@ -45,7 +46,7 @@ func CreateUser(req *http.Request, res render.Render, db *gorm.DB, s sessions.Se
 			res.JSON(403, map[string]interface{}{"error": "New registrations are not allowed at this time."})
 			return
 		case "user":
-			res.HTML(403, "user/login", "New registrations are not allowed at this time.")
+			res.HTML(403, "user/login", Page{Session: s, Err: "New registrations are not allowed at this time."})
 			return
 		}
 	}
@@ -138,10 +139,14 @@ func ReadUser(req *http.Request, params martini.Params, res render.Render, s ses
 		if err != nil {
 			log.Println(err)
 			s.Set("user", -1)
-			res.HTML(500, "error", err)
+			res.HTML(500, "error", Page{Session: s, Err: err.Error()})
 			return
 		}
-		res.HTML(200, "user/index", user)
+		user, err = user.GetPosts(db)
+		if err != nil {
+			log.Println(err)
+		}
+		res.HTML(200, "user/index", Page{Session: s, Data: user})
 		return
 	}
 }
@@ -190,14 +195,14 @@ func LoginUser(req *http.Request, s sessions.Session, res render.Render, db *gor
 		if err != nil {
 			log.Println(err)
 			if err.Error() == "wrong username or password" {
-				res.HTML(401, "user/login", "Wrong username or password.")
+				res.HTML(401, "user/login", Page{Session: s, Err: "Wrong username or password."})
 				return
 			}
 			if err.Error() == "not found" {
-				res.HTML(404, "user/login", "User with that email does not exist.")
+				res.HTML(404, "user/login", Page{Session: s, Err: "User with that email does not exist."})
 				return
 			}
-			res.HTML(500, "user/login", "Internal server error. Please try again.")
+			res.HTML(500, "user/login", Page{Session: s, Err: "Internal server error. Please try again."})
 			return
 		}
 		s.Set("user", user.ID)
@@ -372,7 +377,6 @@ func (user User) ExpireRecovery(db *gorm.DB, t time.Duration) {
 // Get or user.Get returns User object according to given .ID
 // with post information merged.
 func (user User) Get(db *gorm.DB) (User, error) {
-	var posts []Post
 	query := db.Where(&User{ID: user.ID}).First(&user)
 	if query.Error != nil {
 		if query.Error == gorm.RecordNotFound {
@@ -380,7 +384,12 @@ func (user User) Get(db *gorm.DB) (User, error) {
 		}
 		return user, query.Error
 	}
-	query = db.Order("date desc").Where(&Post{Author: user.ID}).Find(&posts)
+	return user, nil
+}
+
+func (user User) GetPosts(db *gorm.DB) (User, error) {
+	var posts []Post
+	query := db.Order("date desc").Where(&Post{Author: user.ID}).Find(&posts)
 	if query.Error != nil {
 		if query.Error == gorm.RecordNotFound {
 			user.Posts = make([]Post, 0)
@@ -490,9 +499,97 @@ func (user User) GetAll(db *gorm.DB) ([]User, error) {
 func (user User) SendRecoverMail() error {
 	gun := mailgun.NewMailgun(Settings.Mailer.Domain, Settings.Mailer.PrivateKey, "")
 	id := strconv.Itoa(int(user.ID))
-	m := mailgun.NewMessage("Sender <postmaster@"+Settings.Mailer.Domain+">", "Password reset", "Somebody requested password recovery on this email. You may reset your password trough this link: http://"+Settings.Hostname+"/user/reset/"+id+"/"+user.Recovery, "Recipient <"+user.Email+">")
+
+	urlhost := urlHost()
+
+	m := mailgun.NewMessage("Password Reset <postmaster@"+Settings.Mailer.Domain+">", "Password Reset", "Somebody requested password recovery on this email. You may reset your password through this link: "+urlhost+"user/reset/"+id+"/"+user.Recovery, "Recipient <"+user.Email+">")
 	if _, _, err := gun.Send(m); err != nil {
 		return err
 	}
 	return nil
+}
+
+// ReadSettings is a route which reads the local settings.json file.
+func ReadSettings(req *http.Request, res render.Render, s sessions.Session, params martini.Params, db *gorm.DB) {
+	var user User
+
+	switch root(req) {
+	case "api":
+		id, err := strconv.Atoi(params["id"])
+		if err != nil {
+			log.Println(err)
+			res.JSON(400, map[string]interface{}{"error": "The user ID could not be parsed from the request URL."})
+			return
+		}
+		user.ID = int64(id)
+		user, err := user.Get(db)
+		if err != nil {
+			log.Println(err)
+			if err.Error() == "not found" {
+				res.JSON(404, NotFound())
+				return
+			}
+			res.JSON(500, map[string]interface{}{"error": "Internal server error"})
+			return
+		}
+		res.JSON(200, user)
+		return
+	case "user":
+		data := s.Get("user")
+		id, exists := data.(int64)
+		if exists {
+			user.ID = id
+		}
+
+		query := db.Where(&User{ID: user.ID}).First(&user)
+		if query.Error != nil {
+			if query.Error == gorm.RecordNotFound {
+				log.Println(query.Error)
+			}
+			log.Println(query.Error)
+		}
+		log.Printf("%+v", user)
+		res.HTML(200, "user/settings", Page{Session: s, Data: user})
+		return
+	}
+}
+
+// UpdateSettings is a route which updates the user's settings
+func UpdateSettings(req *http.Request, res render.Render, user User, s sessions.Session, db *gorm.DB) {
+	log.Printf("%+v", user)
+	query := db.Where(&User{Email: user.Email}).First(&user)
+	if query.Error != nil {
+		if query.Error == gorm.RecordNotFound {
+			log.Printf("%+v", query.Error)
+			return
+		}
+		log.Printf("%+v", query.Error)
+		return
+	}
+	log.Printf("%+v", user)
+
+	data := s.Get("user")
+	id, exists := data.(int64)
+	if exists {
+		log.Println("id: ", id)
+	}
+	if id != user.ID {
+		res.JSON(401, map[string]interface{}{"success": "Permission denied."})
+		return
+	}
+	_, err := user.Update(db, user)
+	if err != nil {
+		log.Println(err)
+		res.JSON(500, map[string]interface{}{"error": "Internal server error"})
+		return
+	}
+
+	switch root(req) {
+	case "api":
+		res.JSON(200, map[string]interface{}{"success": "Settings were successfully saved"})
+		return
+	case "user":
+		res.Redirect("/user", 302)
+		return
+	}
 }

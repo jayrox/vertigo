@@ -12,6 +12,8 @@ import (
 	"strings"
 	"time"
 
+	"encoding/json"
+
 	"github.com/9uuso/go-jaro-winkler-distance"
 	"github.com/go-martini/martini"
 	_ "github.com/go-sql-driver/mysql"
@@ -32,6 +34,7 @@ import (
 // Binding defines whether the field is required when inserting or updating the object.
 type Post struct {
 	ID        int64  `json:"id" gorm:"primary_key:yes"`
+	UUID      string `json:"uuid"`
 	Title     string `json:"title" form:"title" binding:"required"`
 	Content   string `json:"content" form:"content" sql:"type:text"`
 	Markdown  string `json:"markdown" form:"markdown" sql:"type:text"`
@@ -41,6 +44,59 @@ type Post struct {
 	Excerpt   string `json:"excerpt"`
 	Viewcount uint   `json:"viewcount"`
 	Published bool   `json:"-"`
+}
+
+type PublishedPosts struct {
+	Posts []Post `json:"posts"`
+	Users []User `json:"users"`
+}
+
+func (pp *PublishedPosts) String() (s string) {
+	b, err := json.Marshal(pp)
+	if err != nil {
+		s = ""
+		return
+	}
+	s = string(b)
+	return
+}
+func (pp *PublishedPosts) AddUser(user User) {
+	pp.Users = AppendIfMissing(pp.Users, user)
+}
+func (pp *PublishedPosts) GetUsers() (users []User) {
+	return pp.Users
+}
+func (pp *PublishedPosts) AddPost(post Post) {
+	pp.Posts = append(pp.Posts, post)
+}
+func (pp *PublishedPosts) GetPosts() (posts []Post) {
+	return pp.Posts
+}
+func AppendIfMissing(users []User, user User) []User {
+	for _, ele := range users {
+		if ele.ID == user.ID {
+			return users
+		}
+	}
+	return append(users, user)
+}
+
+type PublishedPost struct {
+	Post Post `json:"post"`
+	User User `json:"user"`
+}
+
+func (pp *PublishedPost) AddUser(user User) {
+	pp.User = user
+}
+func (pp *PublishedPost) GetUser() (user User) {
+	return pp.User
+}
+func (pp *PublishedPost) AddPost(post Post) {
+	pp.Post = post
+}
+func (pp *PublishedPost) GetPost() (post Post) {
+	return pp.Post
 }
 
 // Search struct is basically just a type check to make sure people don't add anything nasty to
@@ -53,7 +109,7 @@ type Search struct {
 
 // Homepage route fetches all posts from database and renders them according to "home.tmpl".
 // Normally you'd use this function as your "/" route.
-func Homepage(res render.Render, db *gorm.DB) {
+func Homepage(res render.Render, db *gorm.DB, s sessions.Session) {
 	if Settings.Firstrun {
 		res.HTML(200, "installation/wizard", nil)
 		return
@@ -65,7 +121,11 @@ func Homepage(res render.Render, db *gorm.DB) {
 		res.JSON(500, map[string]interface{}{"error": "Internal server error"})
 		return
 	}
-	res.HTML(200, "home", posts)
+	//var page Page
+	//page.Session = s
+	//page.Data = posts
+
+	res.HTML(200, "home", Page{Session: s, Data: posts})
 }
 
 // Excerpt generates 15 word excerpt from given input.
@@ -84,7 +144,7 @@ func Excerpt(input string) string {
 
 // SearchPost is a route which returns all posts and aggregates the ones which contain
 // the POSTed search query in either Title or Content field.
-func SearchPost(req *http.Request, db *gorm.DB, res render.Render, search Search) {
+func SearchPost(req *http.Request, db *gorm.DB, res render.Render, search Search, s sessions.Session) {
 	search, err := search.Get(db)
 	if err != nil {
 		log.Println(err)
@@ -96,7 +156,7 @@ func SearchPost(req *http.Request, db *gorm.DB, res render.Render, search Search
 		res.JSON(200, search.Posts)
 		return
 	case "post":
-		res.HTML(200, "search", search.Posts)
+		res.HTML(200, "search", Page{Session: s, Data: search.Posts})
 		return
 	}
 }
@@ -177,7 +237,9 @@ func CreatePost(req *http.Request, s sessions.Session, db *gorm.DB, res render.R
 // Not available on frontend, so therefore it only returns a JSON response.
 func ReadPosts(res render.Render, db *gorm.DB) {
 	var post Post
-	published := make([]Post, 0)
+	var user User
+	var publishedposts PublishedPosts
+
 	posts, err := post.GetAll(db)
 	if err != nil {
 		log.Println(err)
@@ -186,16 +248,25 @@ func ReadPosts(res render.Render, db *gorm.DB) {
 	}
 	for _, post := range posts {
 		if post.Published {
-			published = append(published, post)
+			publishedposts.AddPost(post)
+			user.ID = post.Author
+			user, err := user.Get(db)
+			if err != nil {
+				log.Println(err)
+			}
+			publishedposts.AddUser(user)
 		}
 	}
-	res.JSON(200, published)
+	res.JSON(200, publishedposts)
 }
 
 // ReadPost is a route which returns post with given post.Slug.
 // Returns post data on JSON call and displays a formatted page on frontend.
 func ReadPost(req *http.Request, s sessions.Session, params martini.Params, res render.Render, db *gorm.DB) {
 	var post Post
+	var user User
+	var publishedpost PublishedPost
+
 	if params["slug"] == "new" {
 		res.JSON(400, map[string]interface{}{"error": "There can't be a post called 'new'."})
 		return
@@ -211,13 +282,24 @@ func ReadPost(req *http.Request, s sessions.Session, params martini.Params, res 
 		res.JSON(500, map[string]interface{}{"error": "Internal server error"})
 		return
 	}
+
+	publishedpost.AddPost(post)
+	user.ID = post.Author
+	user, err = user.Get(db)
+	if err != nil {
+		log.Println(err)
+	}
+	publishedpost.AddUser(user)
+
 	go post.Increment(db)
 	switch root(req) {
 	case "api":
-		res.JSON(200, post)
+		log.Printf("%+v", publishedpost)
+		res.JSON(200, publishedpost)
 		return
 	case "post":
-		res.HTML(200, "post/display", post)
+		log.Printf("%+v", publishedpost)
+		res.HTML(200, "post/display", Page{Session: s, Data: publishedpost})
 		return
 	}
 }
@@ -225,7 +307,7 @@ func ReadPost(req *http.Request, s sessions.Session, params martini.Params, res 
 // EditPost is a route which returns a post object to be displayed and edited on frontend.
 // Not available for JSON API.
 // Analogous to ReadPost. Could be replaced at some point.
-func EditPost(req *http.Request, params martini.Params, res render.Render, db *gorm.DB) {
+func EditPost(req *http.Request, params martini.Params, res render.Render, db *gorm.DB, s sessions.Session) {
 	var post Post
 	post.Slug = params["slug"]
 	post, err := post.Get(db)
@@ -234,7 +316,7 @@ func EditPost(req *http.Request, params martini.Params, res render.Render, db *g
 		res.JSON(500, map[string]interface{}{"error": "Internal server error"})
 		return
 	}
-	res.HTML(200, "post/edit", post)
+	res.HTML(200, "post/edit", Page{Session: s, Data: post})
 }
 
 // UpdatePost is a route which updates a post defined by martini parameter "title" with posted data.
@@ -322,7 +404,7 @@ func PublishPost(req *http.Request, params martini.Params, s sessions.Session, r
 		res.JSON(200, map[string]interface{}{"success": "Post published"})
 		return
 	case "post":
-		res.Redirect("/post/"+post.Slug, 302)
+		res.Redirect("/user", 302)
 		return
 	}
 }

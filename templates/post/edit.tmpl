@@ -1,18 +1,19 @@
 <link rel="stylesheet" href="/css/writing.css">
 <form method="post" name="new" onsubmit="copy()">
 	<fieldset>
-		<h1><input id="title" spellcheck="false" autocomplete="off" name="title" value="{{.Title}}"></h1>
+		<h1><input id="title" spellcheck="false" autocomplete="off" name="title" value="{{ .Data.Title }}"></h1>
 		{{if Markdown}}
 		<script src="/js/he.js"></script>
 		<script src="/js/to-markdown.js"></script>
 		<textarea class="markdown" name="markdown" id="text"></textarea>
 		<script type="text/javascript">
-			document.getElementById("text").value = toMarkdown({{unescape .Content}})
+			document.getElementById("text").value = toMarkdown({{ unescape .Data.Content }})
 		</script>
 		{{else}}
 		<textarea class="hidden" name="content"></textarea>
-		<section id="text" contenteditable="true">{{unescape .Content}}</section>
+		<section id="text" contenteditable="true">{{ unescape .Data.Content }}</section>
 		{{end}}
+		<input type="submit" value="Update" />
 	</fieldset>
 </form>
 <script type="text/javascript">
@@ -29,14 +30,14 @@
 	with({
 		l: localStorage, // Alias for localStorage, where we'll store text content
 	// This is some sort of variable initialization. It also checks whether there is anything in cache already.
-	}) with(document.getElementById("text")) if (l[{{.Slug}}] != null) {
-		value = l.getItem({{.Slug}}), // Replace placeholder text with localstorage content.
+	}) with(document.getElementById("text")) if (l[{{ .Data.Slug }}] != null) {
+		value = l.getItem({{ .Data.Slug }}), // Replace placeholder text with localstorage content.
 		oninput = function () {
-			l[{{.Slug}}] = value // Save HTML context to localStorage.
+			l[{{ .Data.Slug }}] = value // Save HTML context to localStorage.
 		}
 	} else {
 		oninput = function () {
-			l[{{.Slug}}] = value
+			l[{{ .Data.Slug }}] = value
 		}
 	}
 
@@ -45,14 +46,14 @@
 	with({
 		l: localStorage, // Alias for localStorage, where we'll store text content
 	// This is some sort of variable initialization. It also checks whether there is anything in cache already.
-	}) with(document.getElementById("text")) if (l[{{.Slug}}] != null) {
-		innerHTML = l.getItem({{.Slug}}), // Replace placeholder text with localstorage content.
+	}) with(document.getElementById("text")) if (l[{{ .Data.Slug }}] != null) {
+		innerHTML = l.getItem({{ .Data.Slug }}), // Replace placeholder text with localstorage content.
 		oninput = function () {
-			l[{{.Slug}}] = innerHTML // Save HTML context to localStorage.
+			l[{{ .Data.Slug }}] = innerHTML // Save HTML context to localStorage.
 		}
 	} else {
 		oninput = function () {
-			l[{{.Slug}}] = innerHTML
+			l[{{ .Data.Slug }}] = innerHTML
 		}
 	}
 
@@ -62,22 +63,22 @@
 	// Fundamentally analogous to the loop above.
 	with({
 		l2: localStorage,
-	}) with(document.getElementById("title")) if (l2[{{.Title}}] != null) {
-		document.new.title.value = l2.getItem({{.Title}}),
+	}) with(document.getElementById("title")) if (l2[{{ .Data.Title }}] != null) {
+		document.new.title.value = l2.getItem({{ .Data.Title }}),
 		oninput = function () {
-			l2[{{.Title}}] = document.new.title.value
+			l2[{{ .Data.Title }}] = document.new.title.value
 		}
 	} else {
 		oninput = function () {
-			l2[{{.Title}}] = document.new.title.value
+			l2[{{ .Data.Title }}] = document.new.title.value
 		}
 	}
 
 	// Copy data from contenteditable to textarea for POST to gather the data correctly.
 	// Also clear localstorage.
 	function copy() {
-		localStorage.removeItem({{.Slug}});
-		localStorage.removeItem({{.Title}});
+		localStorage.removeItem({{ .Data.Slug }});
+		localStorage.removeItem({{ .Data.Title }});
 		var html = document.getElementById("text").innerHTML;
 		{{if Markdown}}
 		{{else}}

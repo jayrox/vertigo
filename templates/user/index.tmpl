@@ -1,11 +1,12 @@
-<h2>Hello {{.Name}}</h2>
+<h2>Hello {{.Data.Name}}</h2>
 <p>We have no idea how long it has been since your last visit, because we don't track that. Have a nice day!</p>
 <a href="/post/new">Create new blog post</a>
-<a href="/user/settings">Access settings</a>
+<a href="/user/blogsettings">Blog settings</a>
+<a href="/user/settings">Settings</a>
 <a href="/user/logout">Logout</a>
-{{if .Posts}}
+{{if .Data.Posts}}
 <h2>Your posts</h2>
-{{range .Posts}}
+{{range .Data.Posts}}
 <ul>
 	<li>
 		<a href="/post/{{.Slug}}">{{.Title}}</a>
@@ -14,7 +15,7 @@
 		{{else}}
 		<a href="/post/{{.Slug}}/edit">[edit]</a>
 		{{end}}
-		{{/* Before modidying the line below please see the additional comments on the bottom of this template */}}
+		{{/* Before modifying the line below please see the additional comments on the bottom of this template */}}
 		<a id="{{.Slug}}" class="delete" href="/post/{{.Slug}}/delete">[delete]</a>
 		{{if not .Published}}
 			<a href="/post/{{.Slug}}/publish">[publish]</a>

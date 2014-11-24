@@ -111,8 +111,8 @@ func (settings *Vertigo) Save() error {
 	return nil
 }
 
-// ReadSettings is a route which reads the local settings.json file.
-func ReadSettings(req *http.Request, res render.Render, s sessions.Session) {
+// ReadBlogSettings is a route which reads the local settings.json file.
+func ReadBlogSettings(req *http.Request, res render.Render, s sessions.Session) {
 	var safesettings Vertigo
 	safesettings = *Settings
 	safesettings.CookieHash = ""
@@ -121,13 +121,13 @@ func ReadSettings(req *http.Request, res render.Render, s sessions.Session) {
 		res.JSON(200, safesettings)
 		return
 	case "user":
-		res.HTML(200, "settings", safesettings)
+		res.HTML(200, "settings", Page{Session: s, Data: safesettings})
 		return
 	}
 }
 
 // UpdateSettings is a route which updates the local .json settings file.
-func UpdateSettings(req *http.Request, res render.Render, settings Vertigo, s sessions.Session, db *gorm.DB) {
+func UpdateBlogSettings(req *http.Request, res render.Render, settings Vertigo, s sessions.Session, db *gorm.DB) {
 	if Settings.Firstrun == false {
 		var user User
 		user, err := user.Session(db, s)

@@ -1,0 +1,65 @@
+<link rel="import" href="../components/polymer/polymer.html">
+<link rel="import" href="../post-service/post-service.html">
+<link rel="import" href="../components/mark-down/mark-down.html">
+<link rel="import" href="/post-card.html">
+
+<polymer-element name="post-list" attributes="show">
+  <template>
+    <style>
+	:host {
+		display: block;
+		width: 100%;
+	}
+	post-card {
+		margin-bottom: 30px;
+	}
+    </style>
+    <post-service id="service" posts="{{posts}}" users="{{users}}"></post-service>
+    <div layout vertical>
+      <template repeat="{{post in posts}}">
+		<post-card>
+			<img class="avatar" src="{{ getAvatar(post.author) }}" width="70" height="70" />
+			<span class="title">{{ post.title }}</span>
+			<span class="poster">{{ getUser(post.author) }}</span>
+			<span class="datetime">{{ post.date }}</span>
+			<a href="/post/{{ post.slug }}#disqus_thread">Comments</a>
+			<mark-down>
+				{{post.markdown}}
+			</mark-down>
+        </post-card>
+      </template>
+    </div>
+  </template>
+  <script>
+	function padNum (num, size) {
+		var s = num + "";
+		while (s.length < size) s = "0" + s;
+		return s;
+	}
+	function getByKey(ar, keyvalue) {
+		var found = null;
+		for (var i = 0; i < ar.length; i++) {
+			var element = ar[i];
+			if (element.id == keyvalue) {
+				return element;
+			}
+		}
+		return false;
+	}
+	
+	Polymer({
+		getUser: function (userId) {
+			user = getByKey(this.users, userId);
+			return user.name;
+		},
+		getAvatar: function (userId) {
+			user = getByKey(this.users, userId);
+			return user.avatar;
+		},
+		logger: function (log) {
+			console.log(log);
+			return;
+		}
+	});
+  </script>
+</polymer-element>

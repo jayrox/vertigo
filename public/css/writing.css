@@ -23,3 +23,21 @@ textarea.markdown {
 *:focus {
 	outline: 0;
 }
+
+section#text {
+	border: 1px solid black;
+	color: white;
+	padding: 5px;
+	color: black;
+	height: 3em;
+}
+
+[contenteditable=true]:empty:before {
+	content: attr(placeholder);
+	color: darkgray;
+}
+
+[type=submit] {
+	border: 1px solid black;
+	margin: 10px;
+}

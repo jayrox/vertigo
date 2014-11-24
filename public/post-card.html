@@ -1,0 +1,94 @@
+<link rel="import" href="../components/polymer/polymer.html">
+<link rel="import" href="/post-card-import.html">
+
+<polymer-element name="post-card">
+	<template>
+		<style>
+		:host {
+			display: block;
+			position: relative;
+			font-size: 1.2rem;
+			font-weight: 300;
+		}
+		.card-header {
+			margin-bottom: 10px;
+			padding:1.5rem;
+			box-shadow:0 1px 2px #aaa;
+			background:white;
+			border-radius:3px;
+			user-select:none;
+			animation:fly-in-from-left .5s 1s ease both;
+			transform-origin:top left;
+		}
+		polyfill-next-selector { content: '.card-header h2'; }
+		.card-header ::content h2 {
+			margin: 0;
+			font-size: 1.8rem;
+			font-weight: 300;
+		}
+		polyfill-next-selector { content: '.card-header img'; }
+		.card-header ::content img {
+			width: 70px;
+			border-radius: 50%;
+			margin: 10px;
+		}
+		polyfill-next-selector { content: '.card-header span.title'; }
+		.card-header ::content span.title {
+			color: black;
+			font-weight: 700;
+		}
+		polyfill-next-selector { content: '.card-header span.poster'; }
+		.card-header ::content span.poster {
+			color: #555;
+			font-weight: 500;
+			font-size: 0.8em;
+		}
+		polyfill-next-selector { content: '.card-header span.poster'; }
+		.card-header time {
+			color: gray;
+			font-size: 0.7em;
+		}
+		polyfill-next-selector { content: '.card-header .poster-header'; }
+		.card-header .poster-header {
+		}
+		polyfill-next-selector { content: '.card-header mark-down'; }
+		.card-header ::content mark-down {
+		}
+		polyfill-next-selector { content: '.card-header #tf'; }
+		.card-header ::content span.datetime {
+			display: none;
+		}
+		polyfill-next-selector { content: '.card-header a'; }
+		.card-header ::content a {
+			text-decoration: none;
+			text-transform: uppercase;
+			color: #03a9f4;
+			font-size: 0.8em;
+			font-weight: 600;
+		}
+		</style>
+		<div class="card-header" layout vertical>
+			<div layout horizontal center class="poster-header">
+			 <content select="img.avatar"></content>
+				<div layout vertical>
+					<content select="span.title"></content>
+					<content select="span.poster"></content>
+					<content select="span.datetime"></content>
+					<time datetime='{{wrapDate("%Y-%m-%d %H:%M:%S")}}'>
+						{{wrapDate("%d %b %Y %H:%M:%S")}}
+					</time>
+				</div>
+			</div>
+			<content select="mark-down"></content>
+			<content select="a"></content>
+		</div>
+	</template>
+	<script>   
+	Polymer('post-card', {
+		wrapDate: function (format) {
+			var timedate = this.querySelectorAll('span.datetime')[0].innerHTML;
+			return strftime(format, new Date(timedate*1000));
+		}
+	});
+	</script>
+</polymer-element>

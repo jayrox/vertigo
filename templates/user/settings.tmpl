@@ -1,0 +1,17 @@
+<div>
+<img src="{{ .Data.Avatar }}" class="avatar" /> {{ .Data.Name }}
+</div>
+<a href="/post/new">Create new blog post</a>
+<a href="/user/blogsettings">Blog settings</a>
+<a href="/user/settings">Settings</a>
+<a href="/user/logout">Logout</a>
+<h1>Settings</h1>
+<form method="post" action="/user/settings">
+	<fieldset>
+		<input type="hidden" name="email" value="{{ .Data.Email }}">
+		<label for="avatar">Avatar</label>
+		<p>The Avatar image that will be displayed on your profile and posts.</p>
+		<input type="url" name="avatar" id="avatar" value="{{ .Data.Avatar }}" placeholder="Avatar">
+		<button type="submit">Save</button>
+	</fieldset>
+</form>

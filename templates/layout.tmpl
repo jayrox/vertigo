@@ -1,17 +1,56 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/normalize/3.0.1/normalize.min.css">
-		<link rel="stylesheet" href="/css/style.css">
-		<link href='http://fonts.googleapis.com/css?family=PT+Serif:400,700,400italic&amp;subset=latin,latin-ext,cyrillic-ext,cyrillic' rel='stylesheet' type='text/css'>
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>{{title .}}</title>
+<head>
+	<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+	<script src="../components/webcomponentsjs/webcomponents.js"></script>
+	<link rel="import" href="../components/font-roboto/roboto.html">
+	<link rel="import" href="../components/core-header-panel/core-header-panel.html">
+	<link rel="import" href="../components/core-toolbar/core-toolbar.html">
+	<link rel="import" href="../components/paper-tabs/paper-tabs.html">
+	<link rel="import" href="../components/core-icon-button/core-icon-button.html">
+	<link rel="import" href="../components/paper-button/paper-button.html">
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/normalize/3.0.1/normalize.min.css">
+	<link rel="stylesheet" href="/css/style.css">
+	<link href='http://fonts.googleapis.com/css?family=PT+Serif:400,700,400italic&amp;subset=latin,latin-ext,cyrillic-ext,cyrillic' rel='stylesheet' type='text/css'>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>{{title .}}</title>
 	</head>
-	<body>
-		<header>
-			<a class="homepage-link" href="/">Home</a>
-		</header>
-		{{ yield }}
+	<body unresolved>
+		<core-header-panel>
+			<core-toolbar class="tall">
+				<div class="middle"><a href="{{ hostname . }}" class="title">{{ pagetitle . }}</a> - {{ description . }}</div>
+				<div class="bottom fit" style="height: 60px; background-color: rgb(63,63,63); color: white;" layout horizontal center>
+					<paper-button><a href="/">Home</a></paper-button>
+					{{ if loggedin .Session }}
+					<paper-button><a href="/user">User</a></paper-button>
+					<paper-button><a href="/user/logout">Log out</a></paper-button>
+					{{ else }}
+					<paper-button><a href="/user/login">Log in</a></paper-button>
+					<paper-button><a href="/user/register">Register</a></paper-button>
+					{{ end }}
+					<paper-button><a href="/feeds/rss">RSS</a></paper-button>
+					<span flex></span>
+					<form class="search" method="post" action="/post/search">
+						<input name="query" type="search" spellcheck="false" required="required" placeholder="Search ...">
+					</form>
+				</div>
+			</core-toolbar>
+			<div class="text">
+				{{ yield }}
+			</div>
+		</core-header-panel>
+		<script type="text/javascript" defer>
+		/* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+		var disqus_shortname = 'nobatteriesnet'; // required: replace example with your forum shortname
+
+		/* * * DON'T EDIT BELOW THIS LINE * * */
+		(function () {
+		var s = document.createElement('script'); s.async = true;
+		s.type = 'text/javascript';
+		s.src = '//'+disqus_shortname+'.disqus.com/count.js';
+		(document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+		}());
+		</script>
 	</body>
 </html>

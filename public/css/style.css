@@ -1,26 +1,89 @@
-body {
-	margin: auto;
-	padding: 1em;
-	font-family: 'PT Serif', serif;
-	max-width: 960px;
-	font-size: 1.3em;
+html,body {
+  height: 100%;
+  margin: 0;
+  background-color: #E5E5E5;
+  font-family: 'RobotoDraft', sans-serif;
+}
+core-header-panel {
+  height: 100%;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch; 
 }
 
-.readonly {
+core-toolbar {
+  background: #03a9f4;
+  color: white;
+}
+core-toolbar a {
+  color: white;
+  margin-right: 2px;
+  margin-left: 2px;
+  text-decoration: none;
+}
+core-toolbar a:first-child {
+  /* padding-left: 25px */
+}
+
+paper-button {
+  font-size: 16px;
+}
+
+paper-button a {
+  height: 20px;
+}
+
+#tabs {
+  width: 100%;
+  margin: 0;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  text-transform: uppercase;
+}
+
+.title {
 	text-decoration: none;
-	pointer-events: none;
-	cursor: default;
-	color: grey;
+	color: white;
 }
 
-@media only screen and (max-width: 400px) {
-	body { font-size:90%;}
+.search {
+  margin: 10px;
 }
 
-@media only screen and (max-width: 800px) {
-	body { font-size:100%;}
-}  
+polymer-slidenav{
+  position: relative;
+  width: 100%;
+  background: rgb(63,63,63);
+  color: rgb(200,200,200);
+}
+slidenav-menu{
+  box-shadow: rgb(34, 34, 34) 0px -3px 10px 1px inset;
+  height: 5em;
+}
+slidenav-menu a {
+  color: white;
+  padding-right: 5px;
+}
+slidenav-menu a:first-child {
+  padding-left: 5px;
+}
 
-@media only screen and (max-width: 1100px) {
-    body { font-size:120%; }
+.avatar {
+  width: 70px;
+  border-radius: 50%;
+  margin: 10px;
+}
+
+.text{
+  padding: 20px 10px;
+  color: #333;
+  line-height: 1.8rem;
+}
+
+div#mainContainer {
+}
+
+input {
+  color: black;
 }
