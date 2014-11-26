@@ -548,7 +548,7 @@ func ReadSettings(req *http.Request, res render.Render, s sessions.Session, para
 			}
 			log.Println(query.Error)
 		}
-		log.Printf("%+v", user)
+		//log.Printf("%+v", user)
 		res.HTML(200, "user/settings", Page{Session: s, Data: user})
 		return
 	}
@@ -556,7 +556,8 @@ func ReadSettings(req *http.Request, res render.Render, s sessions.Session, para
 
 // UpdateSettings is a route which updates the user's settings
 func UpdateSettings(req *http.Request, res render.Render, user User, s sessions.Session, db *gorm.DB) {
-	log.Printf("%+v", user)
+	avatar := user.Avatar
+
 	query := db.Where(&User{Email: user.Email}).First(&user)
 	if query.Error != nil {
 		if query.Error == gorm.RecordNotFound {
@@ -566,7 +567,8 @@ func UpdateSettings(req *http.Request, res render.Render, user User, s sessions.
 		log.Printf("%+v", query.Error)
 		return
 	}
-	log.Printf("%+v", user)
+
+	user.Avatar = avatar
 
 	data := s.Get("user")
 	id, exists := data.(int64)

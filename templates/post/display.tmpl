@@ -1,5 +1,6 @@
-<link rel="import" href="/post-card.html">
 <article>
+{{ if .Data.Post.Published }}
+	<link rel="import" href="/post-card.html">
 	<post-card>
 		<img class="avatar" src="{{ .Data.User.Avatar }}" width="70" height="70" />
 		<span class="title">{{ .Data.Post.Title }}</span>
@@ -9,6 +10,15 @@
 			{{ .Data.Post.Markdown }}
 		</mark-down>
 	</post-card>
+{{ else }}
+	<link rel="import" href="/post-card-page.html">
+	<post-card-page>
+		<span class="title">{{ .Data.Post.Title }}</span>
+		<mark-down>
+			{{ .Data.Post.Markdown }}
+		</mark-down>
+	</post-card-page>
+{{ end }}
 	<div id="disqus_thread"></div>
 	<script type="text/javascript">
         /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */

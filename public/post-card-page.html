@@ -2,7 +2,7 @@
 <link rel="import" href="/post-card-import.html">
 <link rel="import" href="/components/mark-down/mark-down.html">
 
-<polymer-element name="post-card">
+<polymer-element name="post-card-page">
 	<template>
 		<style>
 		:host {
@@ -33,31 +33,8 @@
 			border-radius: 50%;
 			margin: 10px;
 		}
-		polyfill-next-selector { content: '.card-header span.title'; }
-		.card-header ::content span.title {
-			color: black;
-			font-weight: 700;
-		}
-		polyfill-next-selector { content: '.card-header span.poster'; }
-		.card-header ::content span.poster {
-			color: #555;
-			font-weight: 500;
-			font-size: 0.8em;
-		}
-		polyfill-next-selector { content: '.card-header span.poster'; }
-		.card-header time {
-			color: gray;
-			font-size: 0.7em;
-		}
-		polyfill-next-selector { content: '.card-header .poster-header'; }
-		.card-header .poster-header {
-		}
 		polyfill-next-selector { content: '.card-header mark-down'; }
 		.card-header ::content mark-down {
-		}
-		polyfill-next-selector { content: '.card-header #tf'; }
-		.card-header ::content span.datetime {
-			display: none;
 		}
 		polyfill-next-selector { content: '.card-header a'; }
 		.card-header ::content a {
@@ -67,29 +44,20 @@
 			font-size: 0.8em;
 			font-weight: 600;
 		}
+		polyfill-next-selector { content: '.card-header span.title'; }
+		.card-header ::content span.title {
+			color: black;
+			font-weight: 700;
+		}
+	
 		</style>
 		<div class="card-header" layout vertical>
-			<div layout horizontal center class="poster-header">
-			 <content select="img.avatar"></content>
-				<div layout vertical>
-					<content select="span.title"></content>
-					<content select="span.poster"></content>
-					<content select="span.datetime"></content>
-					<time datetime='{{wrapDate("%Y-%m-%d %H:%M:%S")}}'>
-						{{wrapDate("%d %b %Y %H:%M:%S")}}
-					</time>
-				</div>
-			</div>
+			<content select="span.title"></content>
 			<content select="mark-down"></content>
 			<content select="a"></content>
 		</div>
 	</template>
 	<script>   
-	Polymer('post-card', {
-		wrapDate: function (format) {
-			var timedate = this.querySelectorAll('span.datetime')[0].innerHTML;
-			return strftime(format, new Date(timedate*1000));
-		}
-	});
+	Polymer({});
 	</script>
 </polymer-element>

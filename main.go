@@ -67,6 +67,9 @@ func NewServer() *martini.ClassicMartini {
 		"loggedin": func(session sessions.Session) bool {
 			return sessionIsAlive(session)
 		},
+		"allowregistrations": func(t interface{}) bool {
+			return Settings.AllowRegistrations
+		},
 		// Env helper returns environment variable of s.
 		"env": func(s string) string {
 			if s == "MAILGUN_SMTP_LOGIN" {
