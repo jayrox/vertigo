@@ -82,6 +82,10 @@ func middleware() martini.Handler {
 
 // sessionIsAlive checks that session cookie with label "user" exists and is valid.
 func sessionIsAlive(session sessions.Session) bool {
+	if session == nil {
+		return false
+	}
+
 	data := session.Get("user")
 	_, exists := data.(int64)
 	if exists {

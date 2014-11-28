@@ -18,7 +18,7 @@
 <body unresolved>
 	<core-header-panel>
 		<core-toolbar class="tall">
-			<div class="middle"><a href="{{ hostname . }}" class="title">{{ pagetitle . }}</a> - {{ description . }}</div>
+			<div class="middle"><a href="{{ hostname . }}" class="title"><img src="/img/logo.svg" class="logo" />{{ pagetitle . }}</a> - {{ description . }}</div>
 			<div class="bottom fit" style="height: 60px; background-color: rgb(63,63,63); color: white;" layout horizontal center>
 				<paper-button><a href="/">Home</a></paper-button>
 				{{ if loggedin .Session }}

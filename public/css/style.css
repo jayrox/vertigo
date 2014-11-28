@@ -43,8 +43,10 @@ paper-button a {
 }
 
 .title {
-	text-decoration: none;
 	color: white;
+  font-size: 3em;
+  text-decoration: none;
+  text-shadow: 1px 1px 5px #000000;
 }
 
 .search {
@@ -86,4 +88,9 @@ div#mainContainer {
 
 input {
   color: black;
+}
+
+.logo {
+	height: 56px;
+	width: 50px;
 }
