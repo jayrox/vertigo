@@ -94,3 +94,11 @@ input {
 	height: 56px;
 	width: 50px;
 }
+
+#barbottom path {
+	transition: fill .5s ease;
+	fill: red;
+}
+#barbottom:hover path {
+	fill: white;
+}

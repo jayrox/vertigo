@@ -211,6 +211,12 @@ func NewServer() *martini.ClassicMartini {
 	return m
 }
 
+/*
+func redir(w http.ResponseWriter, req *http.Request) {
+	http.Redirect(w, req, urlHost()+req.RequestURI, http.StatusMovedPermanently)
+}
+*/
+
 func main() {
 	server := NewServer()
 	if os.Getenv("PORT") != "" {
@@ -218,5 +224,7 @@ func main() {
 	} else {
 		browser.OpenURL("http://localhost:3000")
 	}
+
+	//http.ListenAndServe(":80", http.HandlerFunc(redir))
 	server.Run()
 }
