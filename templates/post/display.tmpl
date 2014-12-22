@@ -6,17 +6,30 @@
 		<span class="title">{{ .Data.Post.Title }}</span>
 		<span class="poster">{{ .Data.User.Name }}</span>
 		<span class="datetime">{{ .Data.Post.Date }}</span>
+		{{ if ismarkdown .Data.Post.Markdown }}
 		<mark-down>
 			{{ .Data.Post.Markdown }}
 		</mark-down>
+		{{ else }}
+		<card-content>
+			{{ unescape .Data.Post.Content }}
+		</card-content>
+		{{ end }}
+		<a href="/post/{{ .Data.Post.Slug }}#disqus_thread">Comments</a>
 	</post-card>
 {{ else }}
 	<link rel="import" href="/components/post-card-page/post-card-page.html">
 	<post-card-page>
 		<span class="title">{{ .Data.Post.Title }}</span>
+		{{ if ismarkdown .Data.Post.Markdown }}
 		<mark-down>
 			{{ .Data.Post.Markdown }}
 		</mark-down>
+		{{ else }}
+		<card-content>
+			{{ unescape .Data.Post.Content }}
+		</card-content>
+		{{ end }}
 	</post-card-page>
 {{ end }}
 	<div id="disqus_thread"></div>

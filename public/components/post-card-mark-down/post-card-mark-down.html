@@ -2,7 +2,7 @@
 <link rel="import" href="/components/mark-down/mark-down.html">
 <link rel="import" href="post-card-import.html">
 
-<polymer-element name="post-card" attributes="src">
+<polymer-element name="post-card-mark-down">
 	<template>
 		<style>
 		:host {
@@ -67,12 +67,7 @@
 			font-size: 0.8em;
 			font-weight: 600;
 		}
-		polyfill-next-selector { content: '.card-header card-content > h3.graf--first'; }
-		.card-header ::content card-content > h3.graf--first {
-			display: none;
-		}
 		</style>
-		<link rel="stylesheet" href="/css/editor.css" />
 		<div class="card-header" layout vertical>
 			<div layout horizontal center class="poster-header">
 			 <content select="img.avatar"></content>
@@ -85,7 +80,6 @@
 					</time>
 				</div>
 			</div>
-			<content select="card-content">{{ htmlDecode() }}</content>
 			<content select="mark-down"></content>
 			<content select="a"></content>
 		</div>
@@ -95,12 +89,6 @@
 		wrapDate: function (format) {
 			var timedate = this.querySelectorAll('span.datetime')[0].innerHTML;
 			return strftime(format, new Date(timedate*1000));
-		},
-		htmlDecode: function () {
-			var cc = this.querySelectorAll('card-content');
-			if ( typeof cc[0] != 'undefined' && this.src == "components/post-list/json" ) {
-				cc[0].innerHTML = cc[0].innerText
-			}
 		}
 	});
 	</script>

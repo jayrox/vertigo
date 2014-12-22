@@ -1,10 +1,12 @@
-<div>
-<img src="{{ .Data.Avatar }}" class="avatar" /> {{ .Data.Name }}
-</div>
-<a href="/post/new">Create new blog post</a>
-<a href="/user/blogsettings">Blog settings</a>
-<a href="/user/settings">Settings</a>
-<a href="/user/logout">Logout</a>
+<paper-button class="edit hover" raised>
+	<a href="/post/new">Create new blog post</a>
+</paper-button>
+<paper-button class="other hover">
+	<a href="/user/blogsettings">Blog settings</a>
+</paper-button>
+<paper-button class="other hover">
+	<a href="/user/settings">Settings</a>
+</paper-button>
 <h1>Settings</h1>
 <form method="post" action="/user/settings">
 	<fieldset>

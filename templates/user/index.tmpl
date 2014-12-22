@@ -1,26 +1,34 @@
 <h2>Hello {{.Data.Name}}</h2>
 <p>We have no idea how long it has been since your last visit, because we don't track that. Have a nice day!</p>
-<a href="/post/new">Create new blog post</a>
-<a href="/user/blogsettings">Blog settings</a>
-<a href="/user/settings">Settings</a>
-<a href="/user/logout">Logout</a>
+<paper-button class="edit hover" raised>
+	<a href="/post/new">Create new blog post</a>
+</paper-button>
+<paper-button class="other hover">
+	<a href="/user/blogsettings">Blog settings</a>
+</paper-button>
+<paper-button class="other hover">
+	<a href="/user/settings">Settings</a>
+</paper-button>
 {{if .Data.Posts}}
 <h2>Your posts</h2>
 {{range .Data.Posts}}
 <ul>
 	<li>
-		<a href="/post/{{.Slug}}">{{.Title}}</a>
-		{{if ReadOnly .}}		
-		<a class="readonly" href="/post/{{.Slug}}/edit">[edit] (<small>This post contains only HTML, but your current settings have Markdown enabled. You cannot edit the post before you switch back to HTML.</small>)</a>
+		<a href="/post/{{.Slug}}">{{.Title}}</a> <span class="postviews">views: {{.Viewcount}}</span>
+		<p>
+		{{if ReadOnly .}}
+			<paper-button class="edit hover"><a class="readonly" href="/post/{{.Slug}}/edit">Edit</a></paper-button>(<small>This post contains only HTML, but your current settings have Markdown enabled. You cannot edit the post before you switch back to HTML.</small>)
 		{{else}}
-		<a href="/post/{{.Slug}}/edit">[edit]</a>
+			<paper-button class="edit hover"><a href="/post/{{.Slug}}/edit">Edit</a></paper-button>
 		{{end}}
 		{{/* Before modifying the line below please see the additional comments on the bottom of this template */}}
-		<a id="{{.Slug}}" class="delete" href="/post/{{.Slug}}/delete">[delete]</a>
-		{{if not .Published}}
-			<a href="/post/{{.Slug}}/publish">[publish]</a>
+		<paper-button class="delete hover"><a id="{{.Slug}}" class="delete" href="/post/{{.Slug}}/delete">Delete</a></paper-button>
+		{{if .Published}}
+			<paper-button class="other hover"><a href="/post/{{.Slug}}/unpublish">Unpublish</a></paper-button>
+		{{else}}
+			<paper-button class="publish hover"><a href="/post/{{.Slug}}/publish"><strong>Publish</strong></a></paper-button>
 		{{end}}
-		<span>[views: {{.Viewcount}}]</span>
+		</p>
 	</li>
 </ul>
 {{end}}

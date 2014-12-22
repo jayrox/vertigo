@@ -5,11 +5,15 @@ package main
 import (
 	"html"
 	"html/template"
+	"io/ioutil"
+	"log"
+	"net/http"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/go-martini/martini"
+	"github.com/jinzhu/gorm"
 	"github.com/martini-contrib/binding"
 	"github.com/martini-contrib/render"
 	"github.com/martini-contrib/sessions"
@@ -69,6 +73,12 @@ func NewServer() *martini.ClassicMartini {
 		},
 		"allowregistrations": func(t interface{}) bool {
 			return Settings.AllowRegistrations
+		},
+		"ismarkdown": func (s string) bool {
+			if len(s) > 0 {
+				return true
+			}
+			return false
 		},
 		// Env helper returns environment variable of s.
 		"env": func(s string) string {
@@ -135,9 +145,9 @@ func NewServer() *martini.ClassicMartini {
 		r.Post("/:slug/edit", ProtectedPage, strict.ContentType("application/x-www-form-urlencoded"), binding.Form(Post{}), binding.ErrorHandler, UpdatePost)
 		r.Get("/:slug/delete", ProtectedPage, DeletePost)
 		r.Get("/:slug/publish", ProtectedPage, PublishPost)
+		r.Get("/:slug/unpublish", ProtectedPage, UnpublishPost)
 		r.Post("/new", ProtectedPage, strict.ContentType("application/x-www-form-urlencoded"), binding.Form(Post{}), binding.ErrorHandler, CreatePost)
 		r.Post("/search", strict.ContentType("application/x-www-form-urlencoded"), binding.Form(Search{}), binding.ErrorHandler, SearchPost)
-
 	})
 
 	m.Group("/user", func(r martini.Router) {
@@ -200,11 +210,25 @@ func NewServer() *martini.ClassicMartini {
 
 		r.Post("/post", strict.ContentType("application/json"), binding.Json(Post{}), binding.ErrorHandler, ProtectedPage, CreatePost)
 		r.Get("/post/:slug/publish", ProtectedPage, PublishPost)
+		r.Get("/post/:slug/unpublish", ProtectedPage, UnpublishPost)
 		r.Post("/post/:slug/edit", strict.ContentType("application/json"), binding.Json(Post{}), binding.ErrorHandler, ProtectedPage, UpdatePost)
 		r.Get("/post/:slug/delete", ProtectedPage, DeletePost)
 		r.Post("/post", strict.ContentType("application/json"), binding.Json(Post{}), binding.ErrorHandler, ProtectedPage, CreatePost)
 		r.Post("/post/search", strict.ContentType("application/json"), binding.Json(Search{}), binding.ErrorHandler, SearchPost)
 
+		r.Post("/images.json", ProtectedPage, UploadImage)
+		r.Post("/save", func(req *http.Request, db *gorm.DB, s sessions.Session) {
+			log.Printf("\n%+v\n", req)
+			log.Printf("\n%+v\n", req.Body)
+			body, err := ioutil.ReadAll(req.Body)
+			if err != nil {
+				// err
+			}
+			sb := string(body[:])
+
+			CreateDraft(sb, db, s)
+			log.Printf("\n%+v\n", s)
+		})
 	})
 
 	m.Router.NotFound(strict.MethodNotAllowed, strict.NotFound)

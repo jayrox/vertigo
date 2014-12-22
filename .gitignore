@@ -24,3 +24,6 @@ _testmain.go
 vertigo
 settings.json
 vertigo.db
+log.txt
+
+public/uploads/

@@ -334,22 +334,27 @@ func UpdatePost(req *http.Request, params martini.Params, s sessions.Session, re
 		res.JSON(500, map[string]interface{}{"error": "Internal server error"})
 		return
 	}
-	err = post.Unpublish(db, s)
+
+	var user User
+	user, err = user.Session(db, s)
 	if err != nil {
 		log.Println(err)
-		if err.Error() == "unauthorized" {
-			res.JSON(401, map[string]interface{}{"error": "Unauthorized"})
+		res.JSON(500, map[string]interface{}{"error": "Internal server error"})
+		return
+	}
+
+	if post.Author == user.ID {
+		post, err = post.Update(db, entry)
+		if err != nil {
+			log.Println(err)
+			res.JSON(500, map[string]interface{}{"error": "Internal server error"})
 			return
 		}
-		res.JSON(500, map[string]interface{}{"error": "Internal server error"})
+	} else {
+		res.JSON(401, map[string]interface{}{"error": "Unauthorized"})
 		return
 	}
-	post, err = post.Update(db, entry)
-	if err != nil {
-		log.Println(err)
-		res.JSON(500, map[string]interface{}{"error": "Internal server error"})
-		return
-	}
+
 	switch root(req) {
 	case "api":
 		res.JSON(200, post)
@@ -409,6 +414,54 @@ func PublishPost(req *http.Request, params martini.Params, s sessions.Session, r
 	}
 }
 
+// UnpublishPost is a route which unpublishes a post and therefore making it disappear from frontpage and search.
+// JSON request returns `HTTP 200 {"success": "Post unpublished"}` on success. Frontend call will redirect to
+// user control panel.
+// Requires active session cookie.
+// The route is anecdotal to route PublishPost().
+func UnpublishPost(req *http.Request, params martini.Params, s sessions.Session, res render.Render, db *gorm.DB) {
+	var post Post
+	post.Slug = params["slug"]
+	post, err := post.Get(db)
+	if err != nil {
+		if err.Error() == "not found" {
+			res.JSON(404, NotFound())
+			return
+		}
+		res.JSON(500, map[string]interface{}{"error": "Internal server error"})
+		return
+	}
+
+	var user User
+	user, err = user.Session(db, s)
+	if err != nil {
+		log.Println(err)
+		res.JSON(500, map[string]interface{}{"error": "Internal server error"})
+		return
+	}
+
+	if post.Author == user.ID {
+		err = post.Unpublish(db, s)
+		if err != nil {
+			log.Println(err)
+			res.JSON(500, map[string]interface{}{"error": "Internal server error"})
+			return
+		}
+	} else {
+		res.JSON(401, map[string]interface{}{"error": "Unauthorized"})
+		return
+	}
+
+	switch root(req) {
+	case "api":
+		res.JSON(200, map[string]interface{}{"success": "Post unpublished"})
+		return
+	case "post":
+		res.Redirect("/user", 302)
+		return
+	}
+}
+
 // DeletePost is a route which deletes a post according to martini parameter "title".
 // JSON request returns `HTTP 200 {"success": "Post deleted"}` on success. Frontend call will redirect to
 // "/user" page on successful request.
@@ -459,8 +512,8 @@ func (post Post) Insert(db *gorm.DB, s sessions.Session) (Post, error) {
 	// if post.Content is empty, the user has used Markdown editor
 	if Settings.Markdown {
 		post.Content = string(blackfriday.MarkdownCommon([]byte(cleanup(post.Markdown))))
-	} else {
-		post.Content = cleanup(post.Content)
+		//} else {
+		//	post.Content = cleanup(post.Content)
 	}
 	post.Author = user.ID
 	post.Date = time.Now().Unix()
@@ -512,17 +565,21 @@ func (post Post) Update(db *gorm.DB, entry Post) (Post, error) {
 	if Settings.Markdown {
 		entry.Markdown = cleanup(entry.Markdown)
 		entry.Content = string(blackfriday.MarkdownCommon([]byte(entry.Markdown)))
-	} else {
-		entry.Content = cleanup(entry.Content)
+		//} else {
+		//	entry.Content = cleanup(entry.Content)
 		// this closure would need a call to convert HTML to Markdown
 		// see https://github.com/9uuso/vertigo/issues/7
 		// entry.Markdown = Markdown of entry.Content
 	}
 	entry.Excerpt = Excerpt(entry.Content)
-	query := db.Where(&Post{Slug: post.Slug}).Find(&post).Updates(entry)
+	query := db.Where(&Post{UUID: post.UUID}).First(&post).Updates(entry)
 	if query.Error != nil {
+		if query.Error == gorm.RecordNotFound {
+			return post, errors.New("not found")
+		}
 		return post, query.Error
 	}
+
 	return post, nil
 }
 
@@ -595,4 +652,67 @@ func (post Post) Increment(db *gorm.DB) {
 	if err != nil {
 		log.Println("analytics error:", err)
 	}
+}
+
+func GetTitle(s string) (title string) {
+	sp := strings.Split(s, "</h3>")
+	sp = strings.Split(sp[0], ">")
+	title = strings.TrimRight(sp[1], " <br>\n\r")
+	title = strings.TrimLeft(title, " \n\r")
+	if strings.Contains(title, "defaultValue--root") {
+		title = "Draft"
+	}
+	return
+}
+
+// Get or post.Get returns post according to given post.Slug.
+// Requires db session as a parameter.
+// Returns Post and error object.
+func (post Post) GetByUUID(db *gorm.DB) (Post, error) {
+	query := db.Find(&post, Post{UUID: post.UUID})
+	if query.Error != nil {
+		if query.Error == gorm.RecordNotFound {
+			return post, errors.New("not found")
+		}
+		return post, query.Error
+	}
+	return post, nil
+}
+
+func GetDraftName(s string) (draft string) {
+	sp := strings.Split(s, "</h3>")
+	sp = strings.Split(sp[0], "name=\"")
+	sp = strings.Split(sp[1], "\"")
+	return sp[0]
+}
+
+func CreateDraft(c string, db *gorm.DB, s sessions.Session) {
+	var post Post
+	log.Println("------------------------------------------------")
+	post.UUID = GetDraftName(c)
+	log.Printf("title: %+v\n", GetTitle(c))
+	log.Printf("draft: %+v\n", post.UUID)
+	p, err := post.GetByUUID(db)
+	if err != nil {
+		log.Println(err)
+	}
+	log.Printf("\np:\n%+v\n", p)
+	p.Title = GetTitle(c)
+	p.Content = c
+	p.Slug = slug.Make(p.Title)
+
+	if p.ID == 0 {
+		po, err := p.Insert(db, s)
+		if err != nil {
+			log.Println("insert err:", err)
+		}
+		log.Printf("\npost insert:\n%+v\n", po)
+	} else {
+		po, err := p.Update(db, p)
+		if err != nil {
+			log.Println("update err: ", err)
+		}
+		log.Printf("\npost update:\n%+v\n", po)
+	}
+	log.Println("------------------------------------------------")
 }

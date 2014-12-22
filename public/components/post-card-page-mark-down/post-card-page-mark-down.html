@@ -1,7 +1,7 @@
 <link rel="import" href="/components/polymer/polymer.html">
 <link rel="import" href="/components/mark-down/mark-down.html">
 
-<polymer-element name="post-card-page">
+<polymer-element name="post-card-page-mark-down">
 	<template>
 		<style>
 		:host {
@@ -26,14 +26,11 @@
 			font-size: 1.8rem;
 			font-weight: 300;
 		}
-		polyfill-next-selector { content: '.card-header img.avatar'; }
-		.card-header ::content img.avatar {
+		polyfill-next-selector { content: '.card-header img'; }
+		.card-header ::content img {
 			width: 70px;
 			border-radius: 50%;
 			margin: 10px;
-		}
-		polyfill-next-selector { content: '.card-header card-content'; }
-		.card-header ::content card-content {
 		}
 		polyfill-next-selector { content: '.card-header mark-down'; }
 		.card-header ::content mark-down {
@@ -52,21 +49,15 @@
 			font-weight: 700;
 			text-decoration: none;
 		}
+
 		</style>
 		<div class="card-header" layout vertical>
-			<content select="card-content">{{ htmlDecode() }}</content>
+			<content select="span.title"></content>
 			<content select="mark-down"></content>
 			<content select="a"></content>
 		</div>
 	</template>
 	<script>
-	Polymer('post-card-page', {
-		htmlDecode: function () {
-			var cc = this.querySelectorAll('card-content');
-			if ( typeof cc[0] != 'undefined' ) {
-				cc[0].innerHTML = cc[0].innerText
-			}
-		}
-	});
+	Polymer({});
 	</script>
 </polymer-element>

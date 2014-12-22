@@ -16,15 +16,22 @@
     <post-service id="service" posts="{{posts}}" users="{{users}}"></post-service>
     <div layout vertical>
       <template repeat="{{post in posts}}">
-		<post-card>
+		<post-card src="json">
 			<img class="avatar" src="{{ getAvatar(post.author) }}" width="70" height="70" />
 			<span class="title">{{ post.title }}</span>
 			<span class="poster">{{ getUser(post.author) }}</span>
 			<span class="datetime">{{ post.date }}</span>
-			<a href="/post/{{ post.slug }}#disqus_thread">Comments</a>
+			<template if="{{ isMarkdown(post.markdown) }}">
 			<mark-down>
-				{{post.markdown}}
+			{{ post.markdown }}
 			</mark-down>
+			</template>
+			<template if="{{ ! isMarkdown(post.markdown) }}">
+			<card-content>
+			{{ post.content }}
+			</card-content>
+			</template>
+			<a href="/post/{{ post.slug }}#disqus_thread">Comments</a>
         </post-card>
       </template>
     </div>
@@ -45,7 +52,7 @@
 		}
 		return false;
 	}
-	
+
 	Polymer({
 		getUser: function (userId) {
 			user = getByKey(this.users, userId);
@@ -58,6 +65,9 @@
 		logger: function (log) {
 			console.log(log);
 			return;
+		},
+		isMarkdown: function (markdown) {
+			return markdown.length >= 1;
 		}
 	});
   </script>
