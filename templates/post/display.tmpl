@@ -1,15 +1,10 @@
 <link rel="import" href="/components/post-singular/post-singular.html">
 <article>
-	<!-- main page content will go here -->
 	<div class="container" layout vertical center>
 		<post-singular show="{{ .Data.Post.Slug }}"></post-singular>
 	</div>
 	<div id="disqus_thread"></div>
 	<script type="text/javascript">
-        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
-    	//var disqus_identifier = 'a unique identifier for each page where Disqus is present';
-
-        /* * * DON'T EDIT BELOW THIS LINE * * */
         (function() {
             var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
             dsq.src = '//nobatteriesnet.disqus.com/embed.js';

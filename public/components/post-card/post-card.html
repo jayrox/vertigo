@@ -71,6 +71,15 @@
 		.card-header ::content card-content > h3.graf--first {
 			display: none;
 		}
+		polyfill-next-selector { content: '.card-header card-content > figure > div > div.aspect-ratio-fill'; }
+		.card-header ::content card-content > figure > div > div.aspect-ratio-fill {
+			display: none;
+		}
+		polyfill-next-selector { content: '.card-header card-content > figure > div > img.graf-image'; }
+		.card-header ::content card-content > figure > div > img.graf-image {
+			max-height: 100%;
+			max-width: 100%;
+		}
 		</style>
 		<link rel="stylesheet" href="/css/editor.css" />
 		<div class="card-header" layout vertical>
