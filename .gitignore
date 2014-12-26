@@ -27,3 +27,5 @@ vertigo.db
 log.txt
 
 public/uploads/
+*.sublime-project
+*.sublime-workspace

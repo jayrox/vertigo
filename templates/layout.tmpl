@@ -1,6 +1,5 @@
-<!doctype html>
-<html>
-<head>
+<!DOCTYPE html>
+<html><head>
 	<title>{{title .}}</title>
 	<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
 	<meta charset="utf-8">
@@ -11,18 +10,18 @@
 	<link rel="import" href="/components/paper-tabs/paper-tabs.html">
 	<link rel="import" href="/components/core-icon-button/core-icon-button.html">
 	<link rel="import" href="/components/paper-button/paper-button.html">
-	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/normalize/3.0.1/normalize.min.css" />
-	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" />
-	<link rel="stylesheet" href="/css/style.css" />
-	<link rel="stylesheet" href="/css/editor.css" />
-	<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/normalize/3.0.1/normalize.min.css">
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css">
+	<link rel="stylesheet" href="/css/style.css">
+	<link rel="stylesheet" href="/css/editor.css">
+	<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
 </head>
 <body unresolved>
 	<core-header-panel>
 		<core-toolbar class="tall">
 			<div class="middle">
 				<a href="{{ hostname . }}" class="pagetitle">
-					<img src="/img/logo.svg" class="logo" />{{ pagetitle . }}
+					<img src="/img/logo.svg" class="logo">{{ pagetitle . }}
 				</a> - {{ description . }}
 			</div>
 			<div class="bottom fit" style="height: 60px; background-color: rgb(63,63,63); color: white;" layout horizontal center>
@@ -65,5 +64,5 @@
 		ga('create', 'UA-57132507-1', 'auto');
 		ga('send', 'pageview');
 	</script>
-</body>
-</html>
+
+</body></html>
