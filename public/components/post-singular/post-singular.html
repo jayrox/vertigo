@@ -1,0 +1,82 @@
+<link rel="import" href="/components/polymer/polymer.html">
+<link rel="import" href="/post-service-singular/post-service-singular.html">
+<link rel="import" href="/components/post-card/post-card.html">
+
+<polymer-element name="post-singular" attributes="show">
+  <template>
+    <style>
+	:host {
+		display: block;
+		width: 100%;
+	}
+	post-card {
+		margin-bottom: 30px;
+	}
+    </style>
+    <post-service-singular id="service" post="{{post}}" user="{{user}}"></post-service-singular>
+    <div layout vertical>
+      <template bind if="{{ en(post) }}">
+		<post-card src="json">
+			<img class="avatar" src="{{ getAvatar(post.author) }}" width="70" height="70" />
+			<span class="title">{{ post.title }}</span>
+			<span class="poster">{{ getUser(post.author) }}</span>
+			<span class="datetime">{{ post.date }}</span>
+			<template if="{{ isMarkdown(post.markdown) }}">
+			<mark-down>
+			{{ post.markdown }}
+			</mark-down>
+			</template>
+			<template if="{{ ! isMarkdown(post.markdown) }}">
+			<card-content>
+			{{ post.content }}
+			</card-content>
+			</template>
+			<a href="/post/{{ post.slug }}#disqus_thread">Comments</a>
+		</post-card>
+      </template>
+    </div>
+  </template>
+  <script>
+	function padNum (num, size) {
+		var s = num + "";
+		while (s.length < size) s = "0" + s;
+		return s;
+	}
+	function getByKey(ar, keyvalue) {
+		var found = null;
+		for (var i = 0; i < ar.length; i++) {
+			var element = ar[i];
+			if (element.id == keyvalue) {
+				return element;
+			}
+		}
+		return false;
+	}
+
+	Polymer({
+		ready: function() {
+			//console.log("show: " + this.show);
+		},
+		getUser: function (userId) {
+			//console.log("getUser: " + userId + " " + this.user.name)
+			return this.user.name;
+		},
+		getAvatar: function (userId) {
+			//console.log("getAvatar: " + userId + " " + this.user.avatar)
+			return this.user.avatar;
+		},
+		logger: function (log) {
+			console.log(log);
+			return;
+		},
+		isMarkdown: function (markdown) {
+			return markdown.length >= 1;
+		},
+		en: function (post) {
+			//console.log("title: " + this.post.title)
+			//console.log("name: " + this.user.name)
+			return typeof this.post.title != 'undefined'
+		}
+	});
+  </script>
+</polymer-element>

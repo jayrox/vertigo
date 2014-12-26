@@ -98,7 +98,7 @@
 		},
 		htmlDecode: function () {
 			var cc = this.querySelectorAll('card-content');
-			if ( typeof cc[0] != 'undefined' && this.src == "components/post-list/json" ) {
+			if ( typeof cc[0] != 'undefined' && this.src.indexOf("json") > -1 ) {
 				cc[0].innerHTML = cc[0].innerText
 			}
 		}

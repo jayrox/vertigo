@@ -21,7 +21,7 @@
 	@type Array
 	@default []
 -->
-<polymer-element name="post-service" attributes="posts,users">
+<polymer-element name="post-service-singular" attributes="post,user">
 	<template>
 		<style>
 		:host {
@@ -30,22 +30,24 @@
 		</style>
 		<core-ajax id="ajax"
 			auto
-			url="/api/posts.json"
 			on-core-response="{{postsLoaded}}"
 			handleAs="json">
 		</core-ajax>
 	</template>
 	<script>
-	Polymer('post-service', {
+	Polymer({
+		ready: function() {
+			this.$.ajax.url = "/api" + window.location.pathname + ".json";
+		},
 		created: function() {
-			this.posts = [];
-			this.users = [];
+			this.post = [];
+			this.user = [];
 		},
 		postsLoaded: function() {
 			// Make a copy of the loaded data
-			this.posts = this.$.ajax.response.posts.slice(0);
-			this.users = this.$.ajax.response.users.slice(0);
-		}
+			this.post = this.$.ajax.response.post;
+			this.user = this.$.ajax.response.user;
+		},
 	});
 	</script>
 </polymer-element>
