@@ -6,7 +6,7 @@
       Menu: {}
     },
     defaults: {
-      image_placeholder: '../images/dante/media-loading-placeholder.png'
+      image_placeholder: '/img/media-loading-placeholder.png'
     },
     version: "0.0.5"
   };
@@ -464,8 +464,9 @@
         $(this.el).html(localStorage.getItem('contenteditable'));
       }
       this.store();
-      this.title_placeholder = "<span class='defaultValue defaultValue--root'>Title</span><br>";
-      this.body_placeholder = "<span class='defaultValue defaultValue--root'>Tell your story…</span><br>";
+      this.title_placeholder = "<span class='defaultValue defaultValue--root' title>Title</span><br>";
+      this.tags_placeholder = "<span class='defaultValue defaultValue--root' tags>Tags</span><br>";
+      this.body_placeholder = "<span class='defaultValue defaultValue--root' story>Tell your story…</span><br>";
       this.embed_placeholder = "<span class='defaultValue defaultValue--prompt'>Paste a YouTube, Vine, Vimeo, or other video link, and press Enter</span><br>";
       return this.extract_placeholder = "<span class='defaultValue defaultValue--prompt'>Paste a link to embed content from another site (e.g. Twitter) and press Enter</span><br>";
     };
@@ -510,11 +511,15 @@
     };
 
     Editor.prototype.renderTitle = function() {
-      return "<h3 class='graf graf--h3'>" + this.title_placeholder + " </h3>";
+      return "<h3 class='graf graf--h3' title>" + this.title_placeholder + "</h3>";
+    };
+
+    Editor.prototype.renderTags = function() {
+      return "<h4 class='graf graf--h4' tags>" + this.tags_placeholder + "</h4>";
     };
 
     Editor.prototype.template = function() {
-      return "<section class='section--first section--last'> <div class='section-divider layoutSingleColumn'> <hr class='section-divider'> </div> <div class='section-content'> <div class='section-inner layoutSingleColumn'> " + (this.disable_title ? '' : this.renderTitle()) + " <p class='graf graf--p'>" + this.body_placeholder + "<p> </div> </div> </section>";
+      return "<section class='section--first section--last'> <div class='section-divider layoutSingleColumn'> <hr class='section-divider'> </div> <div class='section-content'> <div class='section-inner layoutSingleColumn'> " + (this.disable_title ? '' : this.renderTitle()) + (this.disable_tags ? '' : this.renderTags()) + " <p class='graf graf--p' body>" + this.body_placeholder + "<p> </div> </div> </section>";
     };
 
     Editor.prototype.baseParagraphTmpl = function() {

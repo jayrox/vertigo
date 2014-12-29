@@ -38,6 +38,7 @@ type Post struct {
 	Title     string `json:"title" form:"title" binding:"required"`
 	Content   string `json:"content" form:"content" sql:"type:text"`
 	Markdown  string `json:"markdown" form:"markdown" sql:"type:text"`
+	Tags      string `json:"tags" form:"tags" sql:"type:text"`
 	Date      int64  `json:"date"`
 	Slug      string `json:"slug"`
 	Author    int64  `json:"author"`
@@ -654,18 +655,7 @@ func (post Post) Increment(db *gorm.DB) {
 	}
 }
 
-func GetTitle(s string) (title string) {
-	sp := strings.Split(s, "</h3>")
-	sp = strings.Split(sp[0], ">")
-	title = strings.TrimRight(sp[1], " <br>\n\r")
-	title = strings.TrimLeft(title, " \n\r")
-	if strings.Contains(title, "defaultValue--root") {
-		title = "Draft"
-	}
-	return
-}
-
-// Get or post.Get returns post according to given post.Slug.
+// post.GetByUUID returns post according to given post.UUID.
 // Requires db session as a parameter.
 // Returns Post and error object.
 func (post Post) GetByUUID(db *gorm.DB) (Post, error) {
@@ -679,28 +669,74 @@ func (post Post) GetByUUID(db *gorm.DB) (Post, error) {
 	return post, nil
 }
 
+// post.GetBySlug returns post according to given post.Slug.
+// Requires db session as a parameter.
+// Returns Post and error object.
+func (post Post) GetBySlug(db *gorm.DB) (Post, error) {
+	query := db.Find(&post, Post{Slug: post.Slug})
+	if query.Error != nil {
+		if query.Error == gorm.RecordNotFound {
+			return post, errors.New("not found")
+		}
+		return post, query.Error
+	}
+	return post, nil
+}
+
 func GetDraftName(s string) (draft string) {
 	sp := strings.Split(s, "</h3>")
 	sp = strings.Split(sp[0], "name=\"")
 	sp = strings.Split(sp[1], "\"")
-	return sp[0]
+	dn := strings.TrimLeft(sp[0], " \n\r")
+	dn = strings.TrimRight(dn, " \n\r")
+	return dn
 }
 
+func GetTitle(s string) (title string) {
+	sp := strings.Split(s, "</h3>")
+	sp = strings.Split(sp[0], ">")
+	title = strings.TrimRight(sp[1], " <br>\n\r")
+	title = strings.TrimLeft(title, " \n\r")
+	if strings.Contains(title, "defaultValue--root") {
+		title = "Draft"
+	}
+	return
+}
 func CreateDraft(c string, db *gorm.DB, s sessions.Session) {
 	var post Post
-	log.Println("------------------------------------------------")
-	post.UUID = GetDraftName(c)
-	log.Printf("title: %+v\n", GetTitle(c))
-	log.Printf("draft: %+v\n", post.UUID)
-	p, err := post.GetByUUID(db)
+	log.Println("------------------------")
+	log.Println("----- Create Draft -----")
+	log.Println("------------------------")
+
+	draftTitle := GetTitle(c)
+
+	post.Slug = slug.Make(draftTitle)
+	if post.Slug == "" {
+		post.Slug = randSeq(10)
+	}
+
+	log.Printf("title: %+v\n", draftTitle)
+	log.Printf("draft: %+v\n", post.Slug)
+
+	// Get post
+	p, err := post.GetBySlug(db)
 	if err != nil {
 		log.Println(err)
 	}
 	log.Printf("\np:\n%+v\n", p)
-	p.Title = GetTitle(c)
-	p.Content = c
-	p.Slug = slug.Make(p.Title)
 
+	// Set draft title
+	p.Title = draftTitle
+	// Set draft content
+	p.Content = c
+
+	// Create draft slug
+	p.Slug = slug.Make(p.Title)
+	if p.Slug == "" {
+		p.Slug = randSeq(10)
+	}
+
+	// Insert new draft
 	if p.ID == 0 {
 		po, err := p.Insert(db, s)
 		if err != nil {
@@ -708,11 +744,12 @@ func CreateDraft(c string, db *gorm.DB, s sessions.Session) {
 		}
 		log.Printf("\npost insert:\n%+v\n", po)
 	} else {
+		// Update existing draft
 		po, err := p.Update(db, p)
 		if err != nil {
 			log.Println("update err: ", err)
 		}
 		log.Printf("\npost update:\n%+v\n", po)
 	}
-	log.Println("------------------------------------------------")
+	log.Println("------------------------")
 }

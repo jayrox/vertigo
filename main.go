@@ -74,7 +74,7 @@ func NewServer() *martini.ClassicMartini {
 		"allowregistrations": func(t interface{}) bool {
 			return Settings.AllowRegistrations
 		},
-		"ismarkdown": func (s string) bool {
+		"ismarkdown": func(s string) bool {
 			if len(s) > 0 {
 				return true
 			}
