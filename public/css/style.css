@@ -14,7 +14,7 @@ html,body {
 core-header-panel {
 	height: 100%;
 	overflow: auto;
-	-webkit-overflow-scrolling: touch; 
+	-webkit-overflow-scrolling: touch;
 }
 
 core-toolbar {
@@ -137,4 +137,19 @@ paper-button.publish a,
 paper-button.other a {
 	text-decoration: none;
 	color: #fff;
+}
+
+.fbeditor {
+	display: flex;
+	margin-bottom: 1em;
+}
+.fbeditor input {
+	order: 1;
+	flex: 1 30%;
+}
+.fbeditor span {
+	order: 2;
+	flex: 2 auto;
+	text-align: right;
+	color: #5b5b5b;
 }

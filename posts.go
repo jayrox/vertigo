@@ -34,7 +34,6 @@ import (
 // Binding defines whether the field is required when inserting or updating the object.
 type Post struct {
 	ID        int64  `json:"id" gorm:"primary_key:yes"`
-	UUID      string `json:"uuid"`
 	Title     string `json:"title" form:"title" binding:"required"`
 	Content   string `json:"content" form:"content" sql:"type:text"`
 	Markdown  string `json:"markdown" form:"markdown" sql:"type:text"`
@@ -98,6 +97,12 @@ func (pp *PublishedPost) AddPost(post Post) {
 }
 func (pp *PublishedPost) GetPost() (post Post) {
 	return pp.Post
+}
+
+type EditorPost struct {
+	Body  string `form:"body"`
+	ID    int64  `form:"id"`
+	Title string `form:"title"`
 }
 
 // Search struct is basically just a type check to make sure people don't add anything nasty to
@@ -573,7 +578,7 @@ func (post Post) Update(db *gorm.DB, entry Post) (Post, error) {
 		// entry.Markdown = Markdown of entry.Content
 	}
 	entry.Excerpt = Excerpt(entry.Content)
-	query := db.Where(&Post{UUID: post.UUID}).First(&post).Updates(entry)
+	query := db.Where(&Post{ID: post.ID}).First(&post).Updates(entry)
 	if query.Error != nil {
 		if query.Error == gorm.RecordNotFound {
 			return post, errors.New("not found")
@@ -655,20 +660,6 @@ func (post Post) Increment(db *gorm.DB) {
 	}
 }
 
-// post.GetByUUID returns post according to given post.UUID.
-// Requires db session as a parameter.
-// Returns Post and error object.
-func (post Post) GetByUUID(db *gorm.DB) (Post, error) {
-	query := db.Find(&post, Post{UUID: post.UUID})
-	if query.Error != nil {
-		if query.Error == gorm.RecordNotFound {
-			return post, errors.New("not found")
-		}
-		return post, query.Error
-	}
-	return post, nil
-}
-
 // post.GetBySlug returns post according to given post.Slug.
 // Requires db session as a parameter.
 // Returns Post and error object.
@@ -683,73 +674,59 @@ func (post Post) GetBySlug(db *gorm.DB) (Post, error) {
 	return post, nil
 }
 
-func GetDraftName(s string) (draft string) {
-	sp := strings.Split(s, "</h3>")
-	sp = strings.Split(sp[0], "name=\"")
-	sp = strings.Split(sp[1], "\"")
-	dn := strings.TrimLeft(sp[0], " \n\r")
-	dn = strings.TrimRight(dn, " \n\r")
-	return dn
+// post.GetByID returns post according to given post.ID.
+// Requires db session as a parameter.
+// Returns Post and error object.
+func (post Post) GetByID(db *gorm.DB) (Post, error) {
+	query := db.Find(&post, Post{ID: post.ID})
+	if query.Error != nil {
+		if query.Error == gorm.RecordNotFound {
+			return post, errors.New("not found")
+		}
+		return post, query.Error
+	}
+	return post, nil
 }
 
-func GetTitle(s string) (title string) {
-	sp := strings.Split(s, "</h3>")
-	sp = strings.Split(sp[0], ">")
-	title = strings.TrimRight(sp[1], " <br>\n\r")
-	title = strings.TrimLeft(title, " \n\r")
-	if strings.Contains(title, "defaultValue--root") {
-		title = "Draft"
-	}
-	return
-}
-func CreateDraft(c string, db *gorm.DB, s sessions.Session) {
+func CreateDraft(req *http.Request, db *gorm.DB, s sessions.Session, ep EditorPost, res render.Render) {
 	var post Post
-	log.Println("------------------------")
-	log.Println("----- Create Draft -----")
-	log.Println("------------------------")
-
-	draftTitle := GetTitle(c)
-
-	post.Slug = slug.Make(draftTitle)
-	if post.Slug == "" {
-		post.Slug = randSeq(10)
-	}
-
-	log.Printf("title: %+v\n", draftTitle)
-	log.Printf("draft: %+v\n", post.Slug)
-
-	// Get post
-	p, err := post.GetBySlug(db)
-	if err != nil {
-		log.Println(err)
-	}
-	log.Printf("\np:\n%+v\n", p)
-
-	// Set draft title
-	p.Title = draftTitle
-	// Set draft content
-	p.Content = c
-
-	// Create draft slug
-	p.Slug = slug.Make(p.Title)
-	if p.Slug == "" {
-		p.Slug = randSeq(10)
-	}
 
 	// Insert new draft
-	if p.ID == 0 {
-		po, err := p.Insert(db, s)
+	if ep.ID == 0 {
+		// Set draft title
+		post.Title = ep.Title
+		// Set draft content
+		post.Content = ep.Body
+
+		// Insert post
+		po, err := post.Insert(db, s)
 		if err != nil {
 			log.Println("insert err:", err)
 		}
-		log.Printf("\npost insert:\n%+v\n", po)
+		res.JSON(200, map[string]interface{}{"id": po.ID})
 	} else {
 		// Update existing draft
+
+		// Get post
+		post.ID = ep.ID
+		p, err := post.GetByID(db)
+		if err != nil {
+			log.Println(err)
+		}
+
+		// Update title
+		p.Title = ep.Title
+		// Update content
+		p.Content = ep.Body
+
+		// Update Slug
+		p.Slug = slug.Make(p.Title)
+
+		// Update post
 		po, err := p.Update(db, p)
 		if err != nil {
 			log.Println("update err: ", err)
 		}
-		log.Printf("\npost update:\n%+v\n", po)
+		res.JSON(200, map[string]interface{}{"id": po.ID})
 	}
-	log.Println("------------------------")
 }

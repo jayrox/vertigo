@@ -5,15 +5,11 @@ package main
 import (
 	"html"
 	"html/template"
-	"io/ioutil"
-	"log"
-	"net/http"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/go-martini/martini"
-	"github.com/jinzhu/gorm"
 	"github.com/martini-contrib/binding"
 	"github.com/martini-contrib/render"
 	"github.com/martini-contrib/sessions"
@@ -64,7 +60,7 @@ func NewServer() *martini.ClassicMartini {
 		},
 		"datef": func(t time.Time, f string) string {
 			if f == "" {
-				f = "2006-01-02"
+				f = "1983-01-28"
 			}
 			return t.Format(f)
 		},
@@ -217,18 +213,7 @@ func NewServer() *martini.ClassicMartini {
 		r.Post("/post/search", strict.ContentType("application/json"), binding.Json(Search{}), binding.ErrorHandler, SearchPost)
 
 		r.Post("/images.json", ProtectedPage, UploadImage)
-		r.Post("/save", func(req *http.Request, db *gorm.DB, s sessions.Session) {
-			log.Printf("\n%+v\n", req)
-			log.Printf("\n%+v\n", req.Body)
-			body, err := ioutil.ReadAll(req.Body)
-			if err != nil {
-				// err
-			}
-			sb := string(body[:])
-
-			CreateDraft(sb, db, s)
-			log.Printf("\n%+v\n", s)
-		})
+		r.Post("/save", binding.Form(EditorPost{}), ProtectedPage, CreateDraft)
 	})
 
 	m.Router.NotFound(strict.MethodNotAllowed, strict.NotFound)
