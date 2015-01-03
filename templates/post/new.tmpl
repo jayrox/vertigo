@@ -10,6 +10,7 @@
 
 <script src="/js/froala_editor_1.2.4/js/froala_editor.min.js" type="text/javascript"></script>
 <script src="/js/froala_editor_1.2.4/js/plugins/colors.min.js"></script>
+<script src="/js/froala_editor_1.2.4/js/plugins/media_manager.min.js"></script>
 
 <form>
 	<div class="fbeditor">
@@ -29,7 +30,9 @@
 	$(function() {
 		$('#edit').editable({
 			inlineMode: false,
+			imagesLoadURL: "/api/images.json",
 			imageUploadURL: "/api/images.json",
+			imageDeleteURL: "/api/delete_image.json",
 			saveURL: "/api/save",
 			autosave: true,
 			autosaveInterval: 3000,
@@ -37,9 +40,11 @@
 		}).on('editable.afterSave', function (e, editor, data) {
 	  		if (data.id > 0 ) {
 	  			var saveParams = $("#edit").editable("option", "saveParams");
-	  			saveParams.id = data.id
+	  			saveParams.id = data.id;
+	  			saveParams.title = data.title;
 	  			$("#edit").editable("option", "saveParams", saveParams);
-	  			$("#status").text("All changes have been saved.")
+	  			$("#title").val(data.title);
+	  			$("#status").text("All changes have been saved.");
 	  		}else{
 	  			$("#status").text("Error")
 	  		}
@@ -47,12 +52,12 @@
 			var saveParams = $("#edit").editable("option", "saveParams");
 			saveParams.title = $("#title").val();
   			$("#edit").editable("option", "saveParams", saveParams);
-  			$("#status").text("Saving...")
+  			$("#status").text("Saving...");
 		}).on('editable.contentChanged', function (e, editor) {
-  			$("#status").text("Unsaved changes.")
+  			$("#status").text("Unsaved changes.");
 		})
 	});
 	$('#title').change(function() {
-		$("#status").text("Unsaved changes.")
+		$("#status").text("Unsaved changes.");
 	});
 </script>

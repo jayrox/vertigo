@@ -4,6 +4,22 @@
 		"selected_items":
 		[
 			[
+				"Ed",
+				"EditorPost	struct ʈ"
+			],
+			[
+				"F",
+				"FormValue	string ƒ"
+			],
+			[
+				"sva",
+				"saveParams"
+			],
+			[
+				"sav",
+				"saveParams"
+			],
+			[
 				"Has",
 				"HashID	struct ʈ"
 			],
@@ -70,10 +86,6 @@
 			[
 				"padding",
 				"padding-bottom"
-			],
-			[
-				"F",
-				"FieldByName	reflect.Value ƒ"
 			],
 			[
 				"P",
@@ -163,12 +175,20 @@
 	"expanded_folders":
 	[
 		"/E/vertigo",
-		"/E/vertigo/templates"
+		"/E/vertigo/public",
+		"/E/vertigo/public/css",
+		"/E/vertigo/templates",
+		"/E/vertigo/templates/post"
 	],
 	"file_history":
 	[
-		"/E/vertigo/templates/layout.tmpl",
+		"/E/vertigo/main.go",
 		"/E/vertigo/public/css/style.css",
+		"/E/vertigo/posts.go",
+		"/E/vertigo/templates/post/new.tmpl",
+		"/E/vertigo/templates/post/edit.tmpl",
+		"/E/vertigo/imageupload.go",
+		"/E/vertigo/templates/layout.tmpl",
 		"/E/vertigo/public/components/mark-down/marked.js",
 		"/E/vertigo/public/components/mark-down/marked-import.html",
 		"/E/vertigo/public/components/mark-down/mark-down.html",
@@ -184,7 +204,6 @@
 		"/C/Users/jboehm/AppData/Roaming/Sublime Text 3/Packages/User/LiveReload.sublime-settings",
 		"/C/Users/jboehm/AppData/Roaming/Sublime Text 3/Packages/GoSublime/CHANGELOG.md",
 		"/C/Users/jboehm/AppData/Roaming/Sublime Text 3/Packages/User/Package Control.sublime-settings",
-		"/E/vertigo/main.go",
 		"/E/vertigo/settings.json",
 		"/E/vertigo/settings.go",
 		"/E/vertigo/templates/user/index.tmpl",
@@ -290,11 +309,7 @@
 		"/C/dev/gopixelrelay/static/views/edit.html",
 		"/C/dev/gopixelrelay/templates/foot.tmpl",
 		"/C/dev/gopixelrelay/templates/profile.tmpl",
-		"/C/dev/gopixelrelay/templates/notfound.tmpl",
-		"/C/dev/gopixelrelay/templates/index.tmpl",
-		"/C/dev/gopixelrelay/templates/hello.tmpl",
-		"/C/dev/gopixelrelay/controllers/list.go",
-		"/C/dev/gopixelrelay/models/imageview.go"
+		"/C/dev/gopixelrelay/templates/notfound.tmpl"
 	],
 	"find":
 	{
@@ -314,6 +329,10 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"edit.tmpl",
+			"edit",
+			"uuid",
+			"json",
 			"merri",
 			"GetResult",
 			"    ",

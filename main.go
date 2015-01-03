@@ -213,6 +213,8 @@ func NewServer() *martini.ClassicMartini {
 		r.Post("/post/search", strict.ContentType("application/json"), binding.Json(Search{}), binding.ErrorHandler, SearchPost)
 
 		r.Post("/images.json", ProtectedPage, UploadImage)
+		r.Get("/images.json", ProtectedPage, UploadedImages)
+		r.Post("/delete_image.json", binding.Form(ImageSrc{}), ProtectedPage, DeleteImage)
 		r.Post("/save", binding.Form(EditorPost{}), ProtectedPage, CreateDraft)
 	})
 

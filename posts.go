@@ -693,6 +693,10 @@ func CreateDraft(req *http.Request, db *gorm.DB, s sessions.Session, ep EditorPo
 
 	// Insert new draft
 	if ep.ID == 0 {
+
+		if ep.Title == "" {
+			ep.Title = "Draft - [" + randSeq(5) + "]"
+		}
 		// Set draft title
 		post.Title = ep.Title
 		// Set draft content
@@ -703,7 +707,7 @@ func CreateDraft(req *http.Request, db *gorm.DB, s sessions.Session, ep EditorPo
 		if err != nil {
 			log.Println("insert err:", err)
 		}
-		res.JSON(200, map[string]interface{}{"id": po.ID})
+		res.JSON(200, map[string]interface{}{"id": po.ID, "title": post.Title})
 	} else {
 		// Update existing draft
 
