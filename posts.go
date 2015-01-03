@@ -300,11 +300,11 @@ func ReadPost(req *http.Request, s sessions.Session, params martini.Params, res 
 	go post.Increment(db)
 	switch root(req) {
 	case "api":
-		log.Printf("%+v", publishedpost)
+		//log.Printf("%+v", publishedpost)
 		res.JSON(200, publishedpost)
 		return
 	case "post":
-		log.Printf("%+v", publishedpost)
+		//log.Printf("%+v", publishedpost)
 		res.HTML(200, "post/display", Page{Session: s, Data: publishedpost})
 		return
 	}
@@ -731,6 +731,6 @@ func CreateDraft(req *http.Request, db *gorm.DB, s sessions.Session, ep EditorPo
 		if err != nil {
 			log.Println("update err: ", err)
 		}
-		res.JSON(200, map[string]interface{}{"id": po.ID})
+		res.JSON(200, map[string]interface{}{"id": po.ID, "title": p.Title})
 	}
 }

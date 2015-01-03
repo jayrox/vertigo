@@ -214,6 +214,7 @@ func NewServer() *martini.ClassicMartini {
 
 		r.Post("/images.json", ProtectedPage, UploadImage)
 		r.Get("/images.json", ProtectedPage, UploadedImages)
+		r.Post("/pasted_image.json", ProtectedPage, PastedImage)
 		r.Post("/delete_image.json", binding.Form(ImageSrc{}), ProtectedPage, DeleteImage)
 		r.Post("/save", binding.Form(EditorPost{}), ProtectedPage, CreateDraft)
 	})

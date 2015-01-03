@@ -33,6 +33,7 @@
 			imagesLoadURL: "/api/images.json",
 			imageUploadURL: "/api/images.json",
 			imageDeleteURL: "/api/delete_image.json",
+			pastedImagesUploadURL: "/api/pasted_image.json",
 			saveURL: "/api/save",
 			autosave: true,
 			autosaveInterval: 3000,
@@ -59,5 +60,6 @@
 	});
 	$('#title').change(function() {
 		$("#status").text("Unsaved changes.");
+		$("#edit").editable("save");
 	});
 </script>

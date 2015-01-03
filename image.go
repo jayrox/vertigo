@@ -1,11 +1,13 @@
 package main
 
 import (
+	b64 "encoding/base64"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"path"
 	"strings"
@@ -45,6 +47,62 @@ func UploadImage(w http.ResponseWriter, req *http.Request, res render.Render) {
 	url += seq + ext
 
 	log.Println("url: ", url)
+	res.JSON(200, map[string]interface{}{"link": url})
+}
+
+func PastedImage(w http.ResponseWriter, req *http.Request, res render.Render) {
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		// err
+	}
+
+	// Unescape body and make string
+	b, err := url.QueryUnescape(string(body))
+	if err != nil {
+		log.Println(err)
+	}
+
+	// Get image header
+	paste_parts := strings.Split(b, ";base64,")
+	header := paste_parts[0]
+	log.Println("header: ", header)
+
+	// Generate file name
+	ext := "."
+	if strings.Contains(header, "png") {
+		ext += "png"
+	}
+	if strings.Contains(header, "jpg") {
+		ext += "jpg"
+	}
+	if strings.Contains(header, "jpeg") {
+		ext += "jpeg"
+	}
+	if strings.Contains(header, "gif") {
+		ext += "gif"
+	}
+	if strings.Contains(header, "webp") {
+		ext += "webp"
+	}
+	file_name := randSeq(20) + ext
+	log.Println("file name: " + file_name)
+
+	// Decode base64
+	sDec, err := b64.StdEncoding.DecodeString(paste_parts[1])
+	if err != nil {
+		log.Println(err)
+	}
+
+	// Write new image file
+	err = ioutil.WriteFile("./public/uploads/"+file_name, sDec, 0644)
+	if err != nil {
+		panic(err)
+	}
+
+	// Create url and send response
+	url := urlHost() + "uploads/" + file_name
+	log.Println(url)
+
 	res.JSON(200, map[string]interface{}{"link": url})
 }
 
