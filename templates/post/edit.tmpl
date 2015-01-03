@@ -10,6 +10,10 @@
 
 <script src="/js/froala_editor_1.2.4/js/froala_editor.min.js" type="text/javascript"></script>
 <script src="/js/froala_editor_1.2.4/js/plugins/colors.min.js"></script>
+<script src="/js/froala_editor_1.2.4/js/plugins/media_manager.min.js"></script>
+<script src="/js/froala_editor_1.2.4/js/plugins/block_styles.min.js"></script>
+<script src="/js/froala_editor_1.2.4/js/plugins/lists.min.js"></script>
+<script src="/js/froala_editor_1.2.4/js/plugins/video.min.js"></script>
 
 <form>
 	<div class="fbeditor">
@@ -59,6 +63,6 @@
 	});
 	$('#title').change(function() {
 		$("#status").text("Unsaved changes.");
-		$("#edit").editable("save");
+		$("#edit").editable("setDirty", true);
 	});	
 </script>
