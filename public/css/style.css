@@ -146,31 +146,36 @@ paper-button.other a {
 	margin-bottom: 1em;
 }
 
-.fbeditor span, .fbeditor input {
+.fbeditor > span, .fbeditor paper-input {
 	flex: auto;
 	background-color: #e5e5e5;
 }
-
+/*
 .fbeditor input {
-	border: 1px solid black;
 	padding: 2px 5px;
 }
+*/
 
-.fbeditor input[id=title] {
+.fbeditor [id=title] {
 	order: 1;
 	width: 60%;
 	margin-bottom: 0.5em;
+	/*
 	height: 2em;
 	font-size: 1.8em;
+	*/
 }
-.fbeditor span[id=status] {
+.fbeditor > span[id=status] {
 	order: 2;
 	text-align: right;
 	color: #5b5b5b;
 	width: 40%;
 	margin-bottom: 0.5em;
 }
-.fbeditor input[id=tags] {
+.fbeditor [id=tags] {
 	order: 3;
 }
 
+.fbeditor paper-input /deep/ .floated-label {
+	height: 15px;
+}

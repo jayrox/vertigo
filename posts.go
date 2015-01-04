@@ -754,26 +754,22 @@ func (post Post) GetByID(db *gorm.DB) (Post, error) {
 func CreateDraft(req *http.Request, db *gorm.DB, s sessions.Session, ep EditorPost, res render.Render) {
 	var post Post
 
-	log.Println("\n---------\n")
-	log.Printf("\n%+v\n", ep)
-	log.Println("\n---------\n")
-
 	// Insert new draft
 	if ep.ID == 0 {
-
+		// Set draft title
 		if ep.Title == "" {
 			ep.Title = "Draft - [" + randSeq(5) + "]"
 		}
+		post.Title = ep.Title
+
+		// Set draft content
+		post.Content = ep.Body
+
+		// Set draft tags
 		if ep.Tags == "" {
 			ep.Tags = "draft"
 		}
-		// Set draft title
-		post.Title = ep.Title
-		// Set draft content
-		post.Content = ep.Body
-		// Set draft tags
 		post.Tags = ep.Tags
-
 
 		// Insert post
 		po, err := post.Insert(db, s)

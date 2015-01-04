@@ -17,11 +17,13 @@
 <script src="/js/froala_editor_1.2.4/js/plugins/font_family.min.js"></script>
 <script src="/js/froala_editor_1.2.4/js/plugins/font_size.min.js"></script>
 
+<link rel="import" href="/components/paper-input/paper-input.html">
+
 <form>
 	<div class="fbeditor">
-		<input id="title" name="title" value="" placeholder="Title">
+		<paper-input id="title" name="title" value="" label="Title" floatingLabel aria-label="Title"></paper-input>
 		<span id="status"></span>
-		<input id="tags" name="tags" value="" placeholder="Tags">
+		<paper-input id="tags" name="tags" value="" label="Tags" floatingLabel aria-label="Tags"></paper-input>
 	</div>
 	<textarea id="edit" name="content"></textarea>
 </form>
