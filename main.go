@@ -144,6 +144,7 @@ func NewServer() *martini.ClassicMartini {
 		r.Get("/:slug/unpublish", ProtectedPage, UnpublishPost)
 		r.Post("/new", ProtectedPage, strict.ContentType("application/x-www-form-urlencoded"), binding.Form(Post{}), binding.ErrorHandler, CreatePost)
 		r.Post("/search", strict.ContentType("application/x-www-form-urlencoded"), binding.Form(Search{}), binding.ErrorHandler, SearchPost)
+		r.Get("/tag/:tag", SearchTag)
 	})
 
 	m.Group("/user", func(r martini.Router) {

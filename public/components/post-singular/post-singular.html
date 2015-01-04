@@ -21,11 +21,14 @@
 			<span class="title">{{ post.title }}</span>
 			<span class="poster">{{ getUser() }}</span>
 			<span class="datetime">{{ post.date }}</span>
+			<span class="tags">{{ post.tags }}</span>
+
 			<template if="{{ isMarkdown(post.markdown) }}">
 				<mark-down>
 					{{ post.markdown }}
 				</mark-down>
 			</template>
+
 			<template if="{{ ! isMarkdown(post.markdown) }}">
 				<card-content>
 					{{ post.content }}

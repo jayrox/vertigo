@@ -42,11 +42,18 @@
 		.card-header ::content span.poster {
 			color: #555;
 			font-weight: 500;
-			font-size: 0.8em;
+			font-size: 0.9em;
 		}
-		polyfill-next-selector { content: '.card-header span.poster'; }
+		polyfill-next-selector { content: '.card-header time'; }
 		.card-header time {
 			color: gray;
+			font-size: 0.7em;
+			padding-left: 3px;
+		}
+		polyfill-next-selector { content: '.card-header span.tags'; }
+		.card-header ::content span.tags {
+			color: #555;
+			font-weight: 500;
 			font-size: 0.7em;
 		}
 		polyfill-next-selector { content: '.card-header .poster-header'; }
@@ -55,7 +62,7 @@
 		polyfill-next-selector { content: '.card-header mark-down'; }
 		.card-header ::content mark-down {
 		}
-		polyfill-next-selector { content: '.card-header #tf'; }
+		polyfill-next-selector { content: '.card-header span.datetime'; }
 		.card-header ::content span.datetime {
 			display: none;
 		}
@@ -67,31 +74,31 @@
 			font-size: 0.8em;
 			font-weight: 600;
 		}
-		polyfill-next-selector { content: '.card-header card-content > h3.graf--first'; }
-		.card-header ::content card-content > h3.graf--first {
-			display: none;
-		}
-		polyfill-next-selector { content: '.card-header card-content > figure > div > div.aspect-ratio-fill'; }
-		.card-header ::content card-content > figure > div > div.aspect-ratio-fill {
-			display: none;
-		}
-		polyfill-next-selector { content: '.card-header card-content > figure > div > img.graf-image'; }
-		.card-header ::content card-content > figure > div > img.graf-image {
-			max-height: 100%;
-			max-width: 100%;
+		polyfill-next-selector { content: '.card-header a'; }
+		.card-header ::content span.tags > a {
+			text-decoration: none;
+			background-color: #e5e5e5;
+			color: #5b5b5b;
+			font-size: 0.8em;
+			font-weight: 600;
+			padding: 1px 3px;
+			border-radius: 2px;
+			margin-right: 2px;
 		}
 		</style>
-		<link rel="stylesheet" href="/css/editor.css" />
 		<div class="card-header" layout vertical>
 			<div layout horizontal center class="poster-header">
 			 <content select="img.avatar"></content>
 				<div layout vertical>
 					<content select="span.title"></content>
-					<content select="span.poster"></content>
-					<content select="span.datetime"></content>
-					<time datetime='{{wrapDate("%Y-%m-%d %H:%M:%S")}}'>
-						{{wrapDate("%d %b %Y %H:%M:%S")}}
-					</time>
+					<div layout horizontal>
+						<content select="span.poster"></content>
+						<content select="span.datetime"></content>
+						<time datetime='{{wrapDate("%Y-%m-%d %H:%M:%S")}}'>
+							{{wrapDate("%d %b %Y %H:%M:%S")}}
+						</time>
+					</div>
+					<content select="span.tags">{{ linkify () }}</content>
 				</div>
 			</div>
 			<content select="card-content">{{ htmlDecode() }}</content>
@@ -110,6 +117,21 @@
 			if ( typeof cc[0] != 'undefined' && this.src.indexOf("json") > -1 ) {
 				cc[0].innerHTML = cc[0].innerText
 			}
+		},
+		linkify: function () {
+			var tags = this.querySelectorAll('span.tags')[0].innerText;
+			if ( typeof tags == 'undefined' && tags.trim() != "" ) {
+				return
+			}
+			var linked_tags = "";
+			var array = tags.split(',')
+			for (var i in array) {
+				if (array[i] !== "") {
+					tag = array[i].trim();
+					linked_tags += '<a href="/post/tag/' + tag + '">' + tag + '</a>';
+				}
+			}
+			this.querySelectorAll('span.tags')[0].innerHTML = linked_tags;
 		}
 	});
 	</script>

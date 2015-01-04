@@ -14,11 +14,14 @@
 <script src="/js/froala_editor_1.2.4/js/plugins/block_styles.min.js"></script>
 <script src="/js/froala_editor_1.2.4/js/plugins/lists.min.js"></script>
 <script src="/js/froala_editor_1.2.4/js/plugins/video.min.js"></script>
+<script src="/js/froala_editor_1.2.4/js/plugins/font_family.min.js"></script>
+<script src="/js/froala_editor_1.2.4/js/plugins/font_size.min.js"></script>
 
 <form>
 	<div class="fbeditor">
 		<input id="title" name="title" value="{{ unescape .Data.Title }}" placeholder="Title">
 		<span id="status"></span>
+		<input id="tags" name="tags" value="{{ unescape .Data.Tags }}" placeholder="Tags">
 	</div>
 	<textarea id="edit" name="content">{{ unescape .Data.Content }}</textarea>
 </form>
@@ -40,29 +43,36 @@
 			saveURL: "/api/save",
 			autosave: true,
 			autosaveInterval: 3000,
-			saveParams: {id: {{ .Data.ID }}, title: {{ unescape .Data.Title }}}
+			saveParams: {id: {{ .Data.ID }}, title: {{ unescape .Data.Title }}, tags: {{ unescape .Data.Tags }}}
 		}).on('editable.afterSave', function (e, editor, data) {
-	  		if (data.id > 0 ) {
-	  			var saveParams = $("#edit").editable("option", "saveParams");
-	  			saveParams.id = data.id;
-	  			saveParams.title = data.title;
-	  			$("#edit").editable("option", "saveParams", saveParams);
-	  			$("#title").val(data.title);
-	  			$("#status").text("All changes have been saved.");
-	  		}else{
-	  			$("#status").text("Error")
-	  		}
+			if (data.id > 0 ) {
+				var saveParams = $("#edit").editable("option", "saveParams");
+				saveParams.id = data.id;
+				saveParams.title = data.title;
+				saveParams.tags = data.tags;
+				$("#edit").editable("option", "saveParams", saveParams);
+				$("#title").val(data.title);
+				$("#tags").val(data.tags);
+				$("#status").text("All changes have been saved.");
+			}else{
+				$("#status").text("Error")
+			}
 		}).on('editable.beforeSave', function (e, editor) {
 			var saveParams = $("#edit").editable("option", "saveParams");
 			saveParams.title = $("#title").val();
-  			$("#edit").editable("option", "saveParams", saveParams);
-  			$("#status").text("Saving...");
+			saveParams.tags = $("#tags").val();
+			$("#edit").editable("option", "saveParams", saveParams);
+			$("#status").text("Saving...");
 		}).on('editable.contentChanged', function (e, editor) {
-  			$("#status").text("Unsaved changes.");
+			$("#status").text("Unsaved changes.");
 		})
 	});
 	$('#title').change(function() {
 		$("#status").text("Unsaved changes.");
 		$("#edit").editable("setDirty", true);
-	});	
+	});
+	$('#tags').change(function() {
+		$("#status").text("Unsaved changes.");
+		$("#edit").editable("setDirty", true);
+	});
 </script>

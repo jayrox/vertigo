@@ -103,6 +103,7 @@ type EditorPost struct {
 	Body  string `form:"body"`
 	ID    int64  `form:"id"`
 	Title string `form:"title"`
+	Tags  string `form:"tags"`
 }
 
 // Search struct is basically just a type check to make sure people don't add anything nasty to
@@ -127,9 +128,6 @@ func Homepage(res render.Render, db *gorm.DB, s sessions.Session) {
 		res.JSON(500, map[string]interface{}{"error": "Internal server error"})
 		return
 	}
-	//var page Page
-	//page.Session = s
-	//page.Data = posts
 
 	res.HTML(200, "home", Page{Session: s, Data: posts})
 }
@@ -206,6 +204,71 @@ func (search Search) Get(db *gorm.DB) (Search, error) {
 			}
 			for title.Scan() {
 				if jwd.Calculate(title.Text(), search.Query) >= 0.9 {
+					search.Posts = append(search.Posts, post)
+					goto End
+				}
+			}
+		}
+	End:
+	}
+	if len(search.Posts) == 0 {
+		search.Posts = make([]Post, 0)
+	}
+	return search, nil
+}
+
+// SearchPost is a route which returns all posts and aggregates the ones which contain
+// the POSTed search query in either Title or Content field.
+func SearchTag(req *http.Request, db *gorm.DB, res render.Render, params martini.Params, s sessions.Session) {
+	if params["tag"] == "" {
+		res.JSON(400, map[string]interface{}{"error": "Tag cannot be empty."})
+		return
+	}
+
+	var search Search
+	search.Query = params["tag"]
+
+	search, err := search.GetTag(db)
+	if err != nil {
+		log.Println(err)
+		res.JSON(500, map[string]interface{}{"error": "Internal server error"})
+		return
+	}
+	switch root(req) {
+	case "api":
+		res.JSON(200, search.Posts)
+		return
+	case "post":
+		res.HTML(200, "search", Page{Session: s, Data: search.Posts})
+		return
+	}
+}
+
+// Get or search.Get returns all posts which contain parameter search.Query in either
+// post.Title or post.Content.
+// Returns []Post and error object.
+func (search Search) GetTag(db *gorm.DB) (Search, error) {
+	var post Post
+	posts, err := post.GetAll(db)
+	if err != nil {
+		log.Println(err)
+		return search, err
+	}
+	for _, post := range posts {
+		if post.Published {
+			// posts are searched for a match in tags
+			tags := bufio.NewScanner(strings.NewReader(post.Tags))
+			tags.Split(bufio.ScanWords)
+			// content is scanned trough Jaro-Winkler distance with
+			// quite strict matching score of 0.9/1
+			// matching score this high would most likely catch only different
+			// capitalization and small typos
+			//
+			// since we are already in a for loop, we have to break the
+			// iteration here by going to label End to avoid showing a
+			// duplicate search result
+			for tags.Scan() {
+				if jwd.Calculate(tags.Text(), search.Query) >= 0.9 {
 					search.Posts = append(search.Posts, post)
 					goto End
 				}
@@ -691,23 +754,33 @@ func (post Post) GetByID(db *gorm.DB) (Post, error) {
 func CreateDraft(req *http.Request, db *gorm.DB, s sessions.Session, ep EditorPost, res render.Render) {
 	var post Post
 
+	log.Println("\n---------\n")
+	log.Printf("\n%+v\n", ep)
+	log.Println("\n---------\n")
+
 	// Insert new draft
 	if ep.ID == 0 {
 
 		if ep.Title == "" {
 			ep.Title = "Draft - [" + randSeq(5) + "]"
 		}
+		if ep.Tags == "" {
+			ep.Tags = "draft"
+		}
 		// Set draft title
 		post.Title = ep.Title
 		// Set draft content
 		post.Content = ep.Body
+		// Set draft tags
+		post.Tags = ep.Tags
+
 
 		// Insert post
 		po, err := post.Insert(db, s)
 		if err != nil {
 			log.Println("insert err:", err)
 		}
-		res.JSON(200, map[string]interface{}{"id": po.ID, "title": post.Title})
+		res.JSON(200, map[string]interface{}{"id": po.ID, "title": post.Title, "tags": post.Tags})
 	} else {
 		// Update existing draft
 
@@ -722,6 +795,8 @@ func CreateDraft(req *http.Request, db *gorm.DB, s sessions.Session, ep EditorPo
 		p.Title = ep.Title
 		// Update content
 		p.Content = ep.Body
+		// Update tags
+		p.Tags = ep.Tags
 
 		// Update Slug
 		p.Slug = slug.Make(p.Title)
@@ -731,6 +806,6 @@ func CreateDraft(req *http.Request, db *gorm.DB, s sessions.Session, ep EditorPo
 		if err != nil {
 			log.Println("update err: ", err)
 		}
-		res.JSON(200, map[string]interface{}{"id": po.ID, "title": p.Title})
+		res.JSON(200, map[string]interface{}{"id": po.ID, "title": p.Title, "tags": p.Tags})
 	}
 }

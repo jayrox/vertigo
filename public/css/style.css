@@ -141,15 +141,36 @@ paper-button.other a {
 
 .fbeditor {
 	display: flex;
+	flex-flow: row wrap;
+	width: 100%;
 	margin-bottom: 1em;
 }
-.fbeditor input {
-	order: 1;
-	flex: 1 30%;
+
+.fbeditor span, .fbeditor input {
+	flex: auto;
+	background-color: #e5e5e5;
 }
-.fbeditor span {
+
+.fbeditor input {
+	border: 1px solid black;
+	padding: 2px 5px;
+}
+
+.fbeditor input[id=title] {
+	order: 1;
+	width: 60%;
+	margin-bottom: 0.5em;
+	height: 2em;
+	font-size: 1.8em;
+}
+.fbeditor span[id=status] {
 	order: 2;
-	flex: 2 auto;
 	text-align: right;
 	color: #5b5b5b;
+	width: 40%;
+	margin-bottom: 0.5em;
 }
+.fbeditor input[id=tags] {
+	order: 3;
+}
+
