@@ -32,6 +32,8 @@ type Vertigo struct {
 	Markdown           bool            `json:"markdown" form:"markdown"`
 	Description        string          `json:"description" form:"description" binding:"required"`
 	Mailer             MailgunSettings `json:"mailgun"`
+	Disqus             string          `json:"disqus" form:"disqus"`
+	GoogleAnalytics    string          `json:"ga" form:"ga"`
 }
 
 // MailgunSettings holds the API keys necessary to send account recovery email.

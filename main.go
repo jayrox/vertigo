@@ -97,6 +97,14 @@ func NewServer() *martini.ClassicMartini {
 			}
 			return false
 		},
+		// Disqus short name, enables Disqus comments
+		"disqus": func(t interface{}) string {
+			return Settings.Disqus
+		},
+		// GA returns your Google Analytics key
+		"ga": func(t interface{}) string {
+			return Settings.GoogleAnalytics
+		},
 	}
 
 	m := martini.Classic()

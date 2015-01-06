@@ -103,11 +103,14 @@
 			</div>
 			<content select="card-content">{{ htmlDecode() }}</content>
 			<content select="mark-down"></content>
-			<content select="a"></content>
+			<content id="comments" select="a.comments"></content>
 		</div>
 	</template>
 	<script>
 	Polymer('post-card', {
+		domReady: function() {
+			var comments = this.$.comments.getDistributedNodes();
+		},
 		wrapDate: function (format) {
 			var timedate = this.querySelectorAll('span.datetime')[0].innerHTML;
 			return strftime(format, new Date(timedate*1000));

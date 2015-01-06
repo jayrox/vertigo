@@ -48,6 +48,17 @@
 
 		<br><br>
 
+		<label>Disqus Short Name</label>
+		<p>The shortname setup on Disqus to allow post commenting.</p>
+		<input name="disqus" placeholder="Disqus Short Name" value="{{ .Data.Disqus }}">
+
+		<br><br>
+
+		<label>Google Analytics key</label>
+		<p>The key used setup for your Google Analytics account.</p>
+		<input name="ga" placeholder="UA-XXXXXXXX-X" value="{{ .Data.GoogleAnalytics }}">
+
+		<br><br>
 		<button type="submit">Save</button>
 
 	</fieldset>

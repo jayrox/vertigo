@@ -21,6 +21,7 @@
 			<span class="title">{{ post.title }}</span>
 			<span class="poster">{{ getUser(post.author) }}</span>
 			<span class="datetime">{{ post.date }}</span>
+			<a class="comments" href="/post/{{ post.slug }}#disqus_thread">Comments</a>
 			<span class="tags">{{ post.tags }}</span>
 			<template if="{{ isMarkdown(post.markdown) }}">
 			<mark-down>
@@ -32,7 +33,6 @@
 			{{ post.content }}
 			</card-content>
 			</template>
-			<a href="/post/{{ post.slug }}#disqus_thread">Comments</a>
         </post-card>
       </template>
     </div>
