@@ -22,6 +22,7 @@
 			<span class="poster">{{ getUser() }}</span>
 			<span class="datetime">{{ post.date }}</span>
 			<span class="tags">{{ post.tags }}</span>
+			<content select="a.comments"></content>
 
 			<template if="{{ isMarkdown(post.markdown) }}">
 				<mark-down>

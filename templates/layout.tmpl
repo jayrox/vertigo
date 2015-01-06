@@ -41,8 +41,12 @@
 		</core-toolbar>
 		<div class="text">
 			{{ yield }}
+			<div layout horizontal center-justified>
+			<span> &copy; 2015 <a href="{{ hostname . }}">{{ pagetitle . }}</a></span>
+			</div>
 		</div>
 	</core-header-panel>
+
 	{{ if disqus . }}
 	<script type="text/javascript">
 	var disqus_shortname = "{{ disqus . }}";

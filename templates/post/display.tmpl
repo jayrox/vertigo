@@ -1,7 +1,9 @@
 <link rel="import" href="/components/post-singular/post-singular.html">
 <article>
 	<div class="container" layout vertical center>
-		<post-singular show="{{ .Data.Post.Slug }}"></post-singular>
+		<post-singular show="{{ .Data.Post.Slug }}">
+			<a href="{{ hostname . }}post/{{ .Data.Post.Slug }}#disqus_thread" class="comments">Comments</a>
+		</post-singular>
 	</div>
 
 	<div id="disqus_thread"></div>
